@@ -79,11 +79,21 @@ const cv = defineCollection({
     schema: z.object({
         name: z.string(),
         title: z.string(),
+        label: z.string().optional(),
+        email: z.string().optional(),
+        location: z.string().optional(),
+        image: z.string().optional(),
+        summary: z.string().optional(),
+        social_networks: z.array(z.object({
+            network: z.string(),
+            username: z.string(),
+        })).optional(),
         experience: z.array(z.object({
             role: z.string(),
             institution: z.string(),
             period: z.string(),
-            description: z.string(),
+            description: z.string().optional(),
+            highlights: z.array(z.string()).optional(),
         })).optional(),
         education: z.array(z.object({
             degree: z.string(),
@@ -92,6 +102,30 @@ const cv = defineCollection({
             thesis: z.string().optional(),
             description: z.string().optional(),
         })).optional(),
+        certificates: z.array(z.object({
+            name: z.string(),
+            date: z.string().optional(),
+            issuer: z.string().optional(),
+        })).optional(),
+        skills: z.array(z.object({
+            name: z.string(),
+            level: z.string().optional(),
+            keywords: z.array(z.string()).optional(),
+        })).optional(),
+    }),
+});
+
+const aiInTesting = defineCollection({
+    loader: glob({ pattern: "**/*.md", base: "./src/content/ai-in-testing" }),
+    schema: z.object({
+        title: z.string(),
+        author: z.string().optional(),
+        date: z.string().optional(),
+        journal: z.string().optional(),
+        external_url: z.string().optional(),
+        image: z.string().optional(),
+        description: z.string().optional(),
+        tags: z.array(z.string()).optional(),
     }),
 });
 
@@ -103,4 +137,5 @@ export const collections = {
     'projects': projects,
     'cv': cv,
     'teaching': teaching,
+    'ai-in-testing': aiInTesting,
 };

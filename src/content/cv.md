@@ -1,32 +1,91 @@
 ---
-name: "Claude Shannon"
-title: "Mathematician and Electrical Engineer"
+name: "Ujjwal Kumar Singh"
+title: "Software Development Engineer in Test (SDET)"
+label: "Software Development Engineer in Test (SDET)"
+email: "thebeinghumantester@gmail.com"
+location: "India"
+summary: "Software tester with 4+ years of experience in functional testing, API testing, automation, and CI/CD pipelines. Passionate about improving software quality through thoughtful testing practices and automation frameworks."
+social_networks:
+  - network: "GitHub"
+    username: "beinghumantester"
+  - network: "LinkedIn"
+    username: "beinghumantester"
 experience:
-  - role: "Research Mathematician"
-    institution: "Bell Telephone Laboratories"
-    period: "1941 - 1972"
-    description: "Conducted groundbreaking research in information theory, cryptography, and digital computing."
-  - role: "Professor of Electrical Engineering"
-    institution: "MIT"
-    period: "1958 - 1978"
-    description: "Taught courses in information theory, switching theory, and mathematical foundations of computing."
+  - role: "SDET (Software Development Engineer in Test)"
+    institution: "Skeps"
+    period: "Jun 2024 - Present"
+    highlights:
+      - "Conduct grey box and white box testing including reviewing developer pull requests."
+      - "Deploy builds through Jenkins CI/CD pipelines and improve automation coverage."
+      - "Perform API and webhook testing to validate system behaviour for loan facilitation platforms."
+  - role: "Analyst"
+    institution: "Studiographene"
+    period: "Mar 2023 - Jun 2024"
+    highlights:
+      - "Created test plans, test cases, and defect reports."
+      - "Performed functional, API, and regression testing for web and mobile applications."
+      - "Monitored quality KPIs and reported insights to stakeholders."
+  - role: "Associate Quality Analyst"
+    institution: "Copper Mobile Pvt. Ltd."
+    period: "Dec 2021 - Feb 2023"
+    highlights:
+      - "Developed and executed test cases for cross platform mobile and web applications."
+      - "Managed defect tracking using JIRA and collaborated with developers for resolution."
+      - "Presented testing outcomes in client demos and incorporated feedback."
+  - role: "Associate Quality Analyst Trainee"
+    institution: "Copper Mobile Pvt. Ltd."
+    period: "Sep 2021 - Dec 2021"
+    highlights:
+      - "Created and executed test cases."
+      - "Performed sanity, functional, and regression testing."
+      - "Conducted API testing using Postman and Swagger."
 education:
-  - degree: "PhD in Mathematics"
-    institution: "MIT"
-    period: "1936 - 1940"
-    thesis: "An Algebra for Theoretical Genetics"
-    description: "Developed mathematical foundations for genetic inheritance."
-  - degree: "Bachelor of Science in Electrical Engineering"
-    institution: "University of Michigan"
-    period: "1932 - 1936"
+  - degree: "M.S. in Mathematics"
+    institution: "Veer Bahadur Singh Purvanchal University"
+    period: "2020"
+  - degree: "B.Tech. (Hons.) in Computer Science Engineering"
+    institution: "Lovely Professional University"
+    period: "2017"
+certificates:
+  - name: "ISTQB Certified Tester Foundation Level"
+    date: "2023-07"
+    issuer: "ISTQB"
+skills:
+  - name: "Testing"
+    level: "Advanced"
+    keywords:
+      - "Functional Testing"
+      - "API Testing"
+      - "Regression Testing"
+      - "Accessibility Testing"
+      - "White Box Testing"
+      - "UI Automation"
+  - name: "Automation & Programming"
+    level: "Advanced"
+    keywords:
+      - "Python"
+      - "Selenium"
+      - "Pytest"
+      - "BDD"
+  - name: "Tools"
+    level: "Advanced"
+    keywords:
+      - "Jenkins"
+      - "Docker"
+      - "Git"
+      - "Katalon"
+      - "Postman"
+      - "Postbot"
+  - name: "AI Tools"
+    level: "Working Knowledge"
+    keywords:
+      - "ChatGPT"
+      - "GitHub Copilot"
+      - "Claude"
+  - name: "Soft Skills"
+    level: "Strong"
+    keywords:
+      - "Critical Thinking"
+      - "Client Handling"
+      - "QA Documentation"
 ---
-
-## Skills
-- Information Theory
-- Mathematics
-- Electrical Engineering
-- Cryptography
-- Computer Science
-
-## Biographical Summary
-Extra biographical notes or a summary can go here.

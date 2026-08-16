@@ -8,7 +8,7 @@ export interface Bio {
 export interface CVItem {
   institution: string;
   period: string;
-  description: string;
+  description?: string;
 }
 
 export interface EducationItem extends CVItem {
@@ -18,13 +18,39 @@ export interface EducationItem extends CVItem {
 
 export interface ExperienceItem extends CVItem {
   role: string;
+  highlights?: string[];
+}
+
+export interface SocialNetworkItem {
+  network: string;
+  username: string;
+}
+
+export interface CertificateItem {
+  name: string;
+  date?: string;
+  issuer?: string;
+}
+
+export interface SkillItem {
+  name: string;
+  level?: string;
+  keywords?: string[];
 }
 
 export interface CV {
   name: string;
   title: string;
+  label?: string;
+  email?: string;
+  location?: string;
+  image?: string;
+  summary?: string;
+  social_networks?: SocialNetworkItem[];
   experience: ExperienceItem[];
   education: EducationItem[];
+  certificates?: CertificateItem[];
+  skills?: SkillItem[];
 }
 
 export interface BasePage {

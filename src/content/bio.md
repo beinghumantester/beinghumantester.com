@@ -1,28 +1,30 @@
 ---
-name: "Claude Shannon"
-avatar: "shannon.jpg"
-shortBio: "Mathematician and electrical engineer known as the 'Father of Information Theory'. Pioneer in digital computing and cryptography."
-institution: "MIT, Cambridge MA"
+name: "Ujjwal Kumar Singh"
+avatar: "images/ujjwal.jpeg"
+shortBio: "Software tester and quality advocate with 4+ years of experience in SDET. Ministry of Testing Ambassador exploring quality beyond tools."
+institution: "Skeps, Gurgaon"
 ---
 
-I am a mathematician and electrical engineer best known for founding **Information Theory**. My work in the late 1940s established the theoretical foundations of modern digital communications and computing.
+I am a software tester and quality advocate with **4+ years of experience** in software development engineering in test (SDET). I currently work at Skeps, Gurgaon, where I help build quality into systems, not just test them at the end.
 
-## My Life
+## My Approach
 
-Born in Petoskey, Michigan on April 30, 1916, I showed an early aptitude for engineering and mathematics. After studying at the University of Michigan, I completed my PhD at MIT where I famously applied Boolean algebra to electrical circuits. My master's thesis on relay switching circuits is considered one of the most important master's theses ever written.
+I explore how quality works beyond tools and into systems, decisions, and trade-offs. I believe good testing is about asking the right questions: what could go wrong, what matters most, and what evidence do we actually have that the software works.
 
-During World War, I worked at Bell Labs on fire control systems and cryptography, which led to my seminal work in information theory.
+Rather than treating testing as a final gate before release, I focus on weaving quality thinking into how teams design, build, and make decisions throughout the development process.
 
 ## Current Work
 
-I continue to work on various problems at the intersection of mathematics, engineering, and computer science. My interests include artificial intelligence, pattern recognition, game theory, and the fundamental limits of computation.
+At Skeps, I work at the intersection of Functional,Automation, API and exploratory testing to help the team ship with confidence. I'm especially interested in how AI is reshaping the testing discipline, and in what continuous quality looks like in practice rather than in theory.
 
-I also enjoy juggling, unicycling, and playing the clarinet - I even built a juggling machine!
+I write about testing concepts on Substack and actively contribute to the testing community as a **Ministry of Testing Ambassador**, sharing ideas and learning from testers around the world.
 
-## Research Interests
+When I'm not testing, I'm thinking about how teams build quality cultures, and why so many of them don't.
 
-My research focus includes: **Information Theory**, **Cryptography**, **Digital Computing**, **Artificial Intelligence**, **Game Theory**, and **Switching Circuits**.
+## Interests
+
+My interests span: **Automation Architecture**, **API Testing**, **Accessibility Testing**, **Exploratory Testing**, **AI in Testing**, and **Continuous Quality**.
 
 ---
 
-*"I am a mathematician. I am interested in the fundamental limits on the rate at which information can be transmitted."*
+*"Good testing is about asking the right questions: what could go wrong, what matters most, and what evidence do we actually have that the software works."*

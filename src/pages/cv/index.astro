@@ -16,7 +16,19 @@ if (!cvEntry) {
 }
 
 const { Content } = await render(cvEntry);
-const { name, title, experience = [], education = [] } = cvEntry.data;
+const {
+    name,
+    title,
+    label,
+    email,
+    location,
+    summary,
+    social_networks = [],
+    experience = [],
+    education = [],
+    certificates = [],
+    skills = [],
+} = cvEntry.data;
 ---
 
 <BaseLayout title={PAGES.cv.title}>
@@ -26,6 +38,21 @@ const { name, title, experience = [], education = [] } = cvEntry.data;
     </header>
 
     <div class="container-narrow">
+        <section class="section">
+            <h2 class="title-lg">{name}</h2>
+            {(label || title) && <p class="body font-semibold opacity-90">{label || title}</p>}
+            <div class="body-sm mt-1" style="opacity: 0.75;">
+                {[location, email].filter(Boolean).join(" · ")}
+                {social_networks.filter(s => s.username).map(s => (
+                    <>
+                        {" · "}
+                        <span>{s.network}: {s.username}</span>
+                    </>
+                ))}
+            </div>
+            {summary && <p class="body mt-4">{summary}</p>}
+        </section>
+
         {
             experience.length > 0 && (
                 <section class="section">
@@ -36,7 +63,8 @@ const { name, title, experience = [], education = [] } = cvEntry.data;
                         title: exp.role,
                         subtitle: exp.institution,
                         period: exp.period,
-                        description: exp.description
+                        description: exp.description,
+                        highlights: exp.highlights
                     }))} />
                 </section>
             )
@@ -55,6 +83,50 @@ const { name, title, experience = [], education = [] } = cvEntry.data;
                         description: edu.description,
                         thesis: edu.thesis
                     }))} />
+                </section>
+            )
+        }
+
+        {
+            certificates.length > 0 && (
+                <section class="section">
+                    <h2 class="section-title border-b border-border pb-2">
+                        Certificates
+                    </h2>
+                    <ul class="body" style="list-style: disc; padding-left: 1.25rem;">
+                        {certificates.map(cert => (
+                            <li>
+                                {cert.name}
+                                {cert.issuer && ` — ${cert.issuer}`}
+                                {cert.date && ` (${cert.date})`}
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            )
+        }
+
+        {
+            skills.length > 0 && (
+                <section class="section">
+                    <h2 class="section-title border-b border-border pb-2">
+                        Skills
+                    </h2>
+                    {skills.map(skill => (
+                        <div class="mt-3">
+                            <div class="body font-semibold">
+                                {skill.name}
+                                {skill.level && <span class="body-sm opacity-60"> · {skill.level}</span>}
+                            </div>
+                            {skill.keywords && skill.keywords.length > 0 && (
+                                <div class="mt-1" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    {skill.keywords.map(keyword => (
+                                        <span class="tag" style="cursor: default;">{keyword}</span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))}
                 </section>
             )
         }

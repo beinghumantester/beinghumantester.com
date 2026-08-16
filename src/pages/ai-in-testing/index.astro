@@ -1,0 +1,14 @@
+---
+import BaseListing from "../../layouts/BaseListing.astro";
+import { PAGES } from "../../config";
+
+if (PAGES.aiInTesting.isActive === false) {
+    return Astro.redirect("/404");
+}
+---
+
+<BaseListing
+    collection="ai-in-testing"
+    title={PAGES.aiInTesting.title}
+    subtitle={PAGES.aiInTesting.subtitle}
+/>

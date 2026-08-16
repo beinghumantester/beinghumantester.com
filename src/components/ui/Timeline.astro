@@ -4,6 +4,7 @@ export interface TimelineItemData {
     period: string;
     subtitle: string;
     description?: string;
+    highlights?: string[];
     thesis?: string;
 }
 
@@ -38,6 +39,11 @@ const { items } = Astro.props;
                         <div class="body mt-2">
                             {item.description}
                         </div>
+                    )}
+                    {item.highlights && item.highlights.length > 0 && (
+                        <ul class="body mt-2 pl-4" style="list-style: disc;">
+                            {item.highlights.map((point) => <li>{point}</li>)}
+                        </ul>
                     )}
                     {item.thesis && (
                         <div class="body italic mt-2 opacity-80">

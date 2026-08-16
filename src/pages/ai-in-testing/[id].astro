@@ -1,0 +1,22 @@
+---
+import { getCollection } from "astro:content";
+import BaseDetail from "../../layouts/BaseDetail.astro";
+import { PAGES } from "../../config";
+
+if (PAGES.aiInTesting.isActive === false) {
+    return Astro.redirect("/404");
+}
+
+export async function getStaticPaths() {
+    if (PAGES.aiInTesting.isActive === false) return [];
+    const entries = await getCollection("ai-in-testing");
+    return entries.map((entry: any) => ({
+        params: { id: entry.id },
+        props: { entry },
+    }));
+}
+
+const { id } = Astro.params;
+---
+
+<BaseDetail collection="ai-in-testing" id={id} />

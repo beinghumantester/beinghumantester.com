@@ -8,7 +8,7 @@ import { getDetailItem } from "../utils/adapters";
 import { SITE } from "../config";
 
 interface Props {
-    collection: "publications" | "talks" | "projects" | "posts" | "teaching";
+    collection: "publications" | "talks" | "projects" | "posts" | "teaching" | "ai-in-testing";
     id: string;
 }
 
@@ -25,7 +25,7 @@ if (detail.date) meta.push({ label: "Date", value: detail.date, icon: "Calendar"
 if (detail.authors) meta.push({ label: "Author", value: detail.authors, icon: "User" });
 if (detail.extraInput) {
     const icon = "Institution";
-    const label = collection === "publications" ? "Journal" : collection === "talks" ? "Event" : collection === "teaching" ? "Institution" : "Info";
+    const label = collection === "publications" ? "Journal" : collection === "talks" ? "Event" : collection === "teaching" ? "Institution" : collection === "ai-in-testing" ? "Source" : "Info";
     meta.push({ label, value: detail.extraInput, icon });
 }
 

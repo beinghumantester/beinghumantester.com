@@ -22,8 +22,8 @@ export const PAGES: PagesConfig = {
         isActive: true,
     },
     projects: {
-        title: "Code & Projects",
-        subtitle: "Open source contributions and technological experiments.",
+        title: "Playground",
+        subtitle: "Experiments, side projects, and things I build outside of work.",
         isActive: true,
     },
     teaching: {
@@ -39,6 +39,11 @@ export const PAGES: PagesConfig = {
     cv: {
         title: "Curriculum Vitae",
         subtitle: "Academic and professional history.",
+        isActive: true,
+    },
+    aiInTesting: {
+        title: "AI In Testing",
+        subtitle: "Thoughts, experiments, and resources on AI's role in software testing.",
         isActive: true,
     },
 };
