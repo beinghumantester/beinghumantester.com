@@ -2,6 +2,7 @@
 import { getEntry, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Timeline from "../../components/ui/Timeline.astro";
+import Icon from "../../components/ui/Icon.astro";
 import { PAGES } from "../../config";
 
 if (PAGES.cv.isActive === false) {
@@ -33,7 +34,13 @@ const {
 
 <BaseLayout title={PAGES.cv.title}>
     <header class="page-header">
-        <h1 class="page-title">{PAGES.cv.title}</h1>
+        <div class="flex justify-between items-center gap-4 flex-wrap">
+            <h1 class="page-title">{PAGES.cv.title}</h1>
+            <a href="/sample.pdf" download class="btn btn-sm" style="gap: 0.4rem;">
+                <Icon name="Download" size={16} />
+                Download CV
+            </a>
+        </div>
         <p class="page-subtitle">{PAGES.cv.subtitle}</p>
     </header>
 

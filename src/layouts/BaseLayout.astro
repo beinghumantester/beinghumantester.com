@@ -36,13 +36,15 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site || SITE.website);
+const isHome = Astro.url.pathname === "/";
+const pageTitle = isHome ? SITE.title : `${SITE.title} : ${title}`;
 
 const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
     name: SITE.author,
     url: SITE.website,
-    jobTitle: "Professor",
+    jobTitle: "Software Development Engineer in Test (SDET)",
     description: SITE.desc,
 };
 ---
@@ -101,8 +103,8 @@ const jsonLd = {
         <link rel="canonical" href={canonicalURL} />
 
         <!-- General Meta Tags -->
-        <title>{title} | {SITE.title}</title>
-        <meta name="title" content={`${title} | ${SITE.title}`} />
+        <title>{pageTitle}</title>
+        <meta name="title" content={pageTitle} />
         <meta name="description" content={description} />
         <meta name="author" content={SITE.author} />
 
