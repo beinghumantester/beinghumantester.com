@@ -1,120 +1,94 @@
-# 🎓 Academic Portfolio Astro
+# 🐞 Being Human Tester
 
-[![Astro](https://img.shields.io/badge/ASTRO-FF5D01?style=for-the-badge&logo=astro&logoColor=white)](https://astro.build/)
-[![Tailwind](https://img.shields.io/badge/TAILWIND-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/MIT-44CC11?style=for-the-badge)](https://opensource.org/license/mit)
+![Portfolio Screenshot](public/image.png)
 
-![Page Screenshot](public/main_page.jpg)
+## 🌐 Website
 
-A fast, minimalist, and highly customizable Astro template designed specifically for researchers, professors, PhD students, and academics. 
+**[beinghumantester.com](https://beinghumantester.com)**
 
-Strongly inspired by [Academic Pages](https://github.com/academicpages/academicpages.github.io) and [AstroPaper](https://github.com/satnaing/astro-paper), this template prioritizes content readability, SEO discoverability, and ease of configuration without touching the UI code.
+This is the personal portfolio of **Ujjwal Kumar Singh**, a software tester focused on software testing, automation, AI in testing, open source, and quality engineering.
 
-> 🌟 **[View the Live Demo](https://astro-academics-page.vercel.app/)**
+The website brings together my work, projects, writing, open source contributions, speaking activities, and experiments around AI and testing.
 
-## ✨ Features
+## ✨ About
 
-- **Markdown-Driven Collections:** Easily manage your `Bio`, `Blog`, `Publications`, `Projects`, `Talks`, `CV`, and `Teaching` experience purely through `.md` files, **no programming knowledge required**.
-- **Academic Standard Support:** Out-of-the-box $\LaTeX$ rendering support via `remark-math`/`rehype-katex`.
-- **Extensive Theming System:** Built-in Light/Dark mode toggle with a highly customizable underlying design system and several preset color palettes.
-- **Toggleable Sections:** Don't need a "Talks" or "Teaching" section? Disable them globally with a single boolean flag in your config.
-- **Peak Performance:** Built with Astro and Tailwind CSS v4 (via `@tailwindcss/vite`), yielding near-perfect Lighthouse scores and minimal client-side JavaScript.
-- **Analytics:** Includes native configuration options for self-hosted Umami analytics (`umami.websiteId`), as well as GA4 support (`ga4Id`).
-- **Two-Column Architecture:** Optimized layout with a sticky left profile sidebar and a scrollable main content area.
+I work in software testing and quality engineering, with experience across:
 
-## 🚀 Getting Started
+- Manual Testing
+- API Testing
+- Automation Testing
+- Selenium with Python
+- PyTest
+- Database Testing
+- Test Strategy and Quality Engineering
+- AI-assisted and AI-driven testing
+- Open Source
 
-### 1. Bootstrap the Repository
+I also enjoy exploring how testing changes as software development becomes more automated and increasingly driven by AI.
 
-**Via GitHub CLI (Recommended):**
-```bash
-gh repo create my-portfolio --template="rubzip/academic-portfolio-astro" --clone
-cd my-portfolio
-```
+## 🎤 Speaking
 
-**Via Standard Git:**
-```bash
-git clone https://github.com/rubzip/academic-portfolio-astro.git my-portfolio
-cd my-portfolio
-```
+The website includes my talks, webinars, meetups, masterclasses, and conference appearances covering topics around:
 
-### 2. Install Dependencies
-This project uses Node.js (requires **Node.js >= 22.12.0**).
+- Software Testing
+- AI and Testing
+- Agentic Engineering
+- Quality Engineering
+- Open Source
+- Test Automation
+- Developer and Tester Collaboration
+
+## 🤖 AI Playground
+
+The AI Playground is a space for experimenting with ideas around AI, testing, automation, and agentic systems.
+
+It will evolve over time as new experiments and projects are added.
+
+## 🛠️ Projects
+
+The portfolio includes selected projects and experiments related to:
+
+- Test Automation
+- Python
+- Selenium
+- PyTest
+- API Testing
+- AI Testing
+- Agentic Systems
+- Developer Tools
+- Open Source
+
+## ✍️ Writing
+
+I write about software testing, quality engineering, AI, automation, open source, and the practical problems testers face while building and testing modern software.
+
+## 🌱 Open Source
+
+I contribute to and participate in open source projects and communities, with a particular interest in testing and quality.
+
+Some of my work and contributions can be explored through my GitHub profile.
+
+## 🧰 Tech Stack
+
+The portfolio website itself is built using:
+
+- [Astro](https://astro.build/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- TypeScript
+- Markdown / MDX
+- GitHub Actions
+- GitHub Pages
+
+The website is hosted at **beinghumantester.com** using GitHub Pages.
+
+## 🚀 Running Locally
+
+### Prerequisites
+
+- Node.js >= 22.12.0
+- npm
+
+### Install dependencies
+
 ```bash
 npm install
-```
-
-### 3. Start Development Server
-```bash
-npm run dev
-```
-Your local server will start at `http://localhost:4321`.
-
-## 📂 Architecture & Structure
-
-This project follows a centralized configuration architecture and is driven entirely by Markdown/MDX content.
-
-```text
-/
-├── public/                 # Static assets (images, favicon, robots.txt)
-├── src/
-│   ├── assets/             # Global icons (`icons.ts`)
-│   ├── components/         # Reusable Astro UI components (Tailwind classes used for styling)
-│   ├── config/             # ⚙️ ALL GLOBAL CONFIGURATION LIVES HERE
-│   │   ├── site.ts         # Meta details & Analytics (SITE, THEME_CONFIG, SETTINGS)
-│   │   ├── pages.ts        # Enable/Disable sections & subtitles (PAGES)
-│   │   ├── themes.ts       # Color palettes
-│   │   ├── navigation.ts   # Navbar links (NAV_LINKS)
-│   │   └── social.ts       # Social media links (SOCIALS)
-│   ├── content/            # 📝 ALL MARKDOWN CONTENT LIVES HERE
-│   │   ├── bio.md
-│   │   ├── cv.md
-│   │   ├── posts/
-│   │   ├── projects/
-│   │   ├── publications/
-│   │   ├── talks/
-│   │   └── teaching/
-│   ├── layouts/            # Page layout wrappers
-│   ├── pages/              # Astro routing
-│   ├── styles/             # Global CSS (`global.css` - Theme colors, base styles)
-│   └── types/              # TypeScript interfaces (content, display, config, themes)
-└── content.config.ts       # Zod schemas for all markdown collections
-```
-
-## 📖 Documentation & Setup
-
-For a comprehensive, step-by-step guide on how to configure your site, modify the design, and write new content, please refer to the dedicated setup post included in this template:
-
-**👉 [Setting up Your Academic Portfolio](src/content/posts/setting-up-portfolio.md)**
-
-
-## 📋 Configuration
-
-All configuration is managed centrally in the `src/config` directory. Modify these files to personalize your portfolio without touching any UI code:
-
-| File | Purpose |
-| :--- | :--- |
-| [`pages.ts`](src/config/pages.ts) | Enable/disable entire sections (e.g., `talks`, `teaching`) and set page subtitles. |
-| [`themes.ts`](src/config/themes.ts) | Define and manage all color palettes. Use `THEME_CONFIG` in `site.ts` to apply. |
-| [`site.ts`](src/config/site.ts) | Manage metadata, analytics keys (Umami/GA4), and critical file paths. |
-| [`navigation.ts`](src/config/navigation.ts) | Define the primary navigation bar links. |
-| [`social.ts`](src/config/social.ts) | Configure social media links appearing in the footer and header. |
-
-
-## 🛠️ Build Commands
-
-All standard build commands run through `npm`:
-
-| Command | Action |
-| :--- | :--- |
-| `npm run dev` | Starts the local development server on `localhost:4321` |
-| `npm run build` | Builds your project for production output into `./dist/` |
-| `npm run preview` | Previews your production build locally |
-| `npm run format` | Runs Prettier on all files to format code |
-
-## 🤝 Contributing & License
-
-Contributions, issues, and feature requests are always welcome! Feel free to check the [issues page](https://github.com/rubzip/academic-portfolio-astro/issues).
-
-This project is licensed under the **MIT License** - see the `LICENSE` file for details.
