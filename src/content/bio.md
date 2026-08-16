@@ -17,7 +17,7 @@ Rather than treating testing as a final gate before release, I focus on weaving 
 
 At Skeps, I work at the intersection of Functional,Automation, API and exploratory testing to help the team ship with confidence. I'm especially interested in how AI is reshaping the testing discipline, and in what continuous quality looks like in practice rather than in theory.
 
-I write about testing concepts on Substack and actively contribute to the testing community as a **Ministry of Testing Ambassador**, sharing ideas and learning from testers around the world.
+I write about testing concepts on [Substack](https://substack.com/@beinghumantester) and actively contribute to the testing community as a **Ministry of Testing Ambassador**, sharing ideas and learning from testers around the world.
 
 When I'm not testing, I'm thinking about how teams build quality cultures, and why so many of them don't.
 

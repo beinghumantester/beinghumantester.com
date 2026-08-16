@@ -672,7 +672,6 @@ a:hover,
 }
 
 .prose pre {
-    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 0.25rem;
     padding: 1rem;
@@ -681,9 +680,23 @@ a:hover,
 }
 
 .prose pre code {
-    background: transparent;
-    color: var(--foreground);
     padding: 0;
+}
+
+/*
+ * Shiki (Astro's code-block highlighter) bakes theme colors into inline
+ * `style` attributes, which beat any class-based CSS rule - so code blocks
+ * ignored this site's dark-mode toggle and stayed on the light theme's
+ * colors even at night. astro.config.mjs configures a light/dark theme
+ * pair, which makes Shiki additionally expose the dark variant via
+ * `--shiki-dark` / `--shiki-dark-bg` custom properties; these rules swap to
+ * them when dark mode is active. `!important` is required here specifically
+ * to win against Shiki's own inline styles.
+ */
+[data-theme="dark"] .astro-code,
+[data-theme="dark"] .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
 }
 
 .prose img {

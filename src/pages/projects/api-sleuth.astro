@@ -1,0 +1,739 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BackLink from "../../components/ui/BackLink.astro";
+---
+
+<BaseLayout
+    title="API Sleuth"
+    description="Scenario, evidence, decision. A case-file game that teaches you to investigate an API response, not just recall its status code."
+>
+    <BackLink href="/projects" label="projects" />
+
+    <header class="page-header">
+        <h1 class="page-title">API Sleuth</h1>
+        <p class="page-subtitle">Read the request and response like evidence. Make the call a tester would make - not just the one a spec would.</p>
+    </header>
+
+    <div class="container-narrow game-wrap">
+        <div class="game-meta">
+            <span class="body-sm" id="progress-label">Case 1 of 12</span>
+            <span class="body-sm" id="score-label">Score: 0 &middot; Streak: 0</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div id="quiz-card" class="quiz-card">
+            <span class="category-badge" id="category-badge"></span>
+            <p class="body scenario-text" id="scenario-text"></p>
+
+            <div class="evidence" id="evidence"></div>
+
+            <p class="body question-text" id="question-text"></p>
+            <p class="body-sm hint-text" id="hint-text" hidden>Select every assertion that holds. Then check your answer.</p>
+
+            <div class="options-grid" id="options-grid"></div>
+
+            <p class="body-sm explanation" id="explanation" hidden></p>
+            <div class="quiz-actions">
+                <button type="button" class="btn" id="submit-btn" hidden>Check Answer</button>
+                <button type="button" class="btn" id="next-btn" hidden>Next Case</button>
+            </div>
+        </div>
+
+        <div id="result-card" class="quiz-card" hidden>
+            <h2 class="title-md" id="result-title"></h2>
+            <div class="report" id="report"></div>
+            <p class="body-sm result-tip" id="result-tip"></p>
+            <div class="quiz-actions">
+                <button type="button" class="btn" id="retry-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+</BaseLayout>
+
+<style is:global>
+    .game-wrap {
+        margin-top: 1rem;
+    }
+
+    .game-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        opacity: 0.8;
+    }
+
+    .progress-track {
+        width: 100%;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--border);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: var(--accent);
+        transition: width 0.3s ease;
+    }
+
+    .quiz-card {
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        background: var(--surface);
+    }
+
+    .category-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        margin-bottom: 0.85rem;
+    }
+
+    .category-badge.signal {
+        color: #16a34a;
+        border-color: color-mix(in srgb, #16a34a 40%, var(--border));
+    }
+
+    .category-badge.investigate {
+        color: #d97706;
+        border-color: color-mix(in srgb, #d97706 40%, var(--border));
+    }
+
+    .category-badge.break {
+        color: #dc2626;
+        border-color: color-mix(in srgb, #dc2626 40%, var(--border));
+    }
+
+    .scenario-text {
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    .evidence {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .evidence-block {
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        overflow: hidden;
+        background: var(--background);
+    }
+
+    .evidence-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 0.4rem 0.75rem;
+        border-bottom: 1px solid var(--border);
+        opacity: 0.7;
+    }
+
+    .evidence-body {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        padding: 0.65rem 0.75rem;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin: 0;
+    }
+
+    .question-text {
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .hint-text {
+        opacity: 0.7;
+        margin-top: -0.2rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .options-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .option-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        text-align: left;
+        padding: 0.7rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        background: transparent;
+        color: var(--foreground);
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease;
+        font-family: inherit;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .option-btn:hover:not(:disabled) {
+        border-color: var(--accent);
+    }
+
+    .option-btn:disabled {
+        cursor: default;
+    }
+
+    .option-marker {
+        flex-shrink: 0;
+        width: 1.1rem;
+        height: 1.1rem;
+        border: 1.5px solid var(--border);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        line-height: 1;
+    }
+
+    .option-btn[data-type="single"] .option-marker {
+        border-radius: 999px;
+    }
+
+    .option-btn[data-type="multi"] .option-marker {
+        border-radius: 0.2rem;
+    }
+
+    .option-btn.selected .option-marker {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: white;
+    }
+
+    .option-btn.correct {
+        border-color: #16a34a;
+        background: color-mix(in srgb, #16a34a 15%, transparent);
+    }
+
+    .option-btn.incorrect {
+        border-color: #dc2626;
+        background: color-mix(in srgb, #dc2626 15%, transparent);
+    }
+
+    .option-btn.missed {
+        border-color: #d97706;
+        background: color-mix(in srgb, #d97706 12%, transparent);
+    }
+
+    .explanation {
+        margin-top: 1.1rem;
+        padding: 0.85rem 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--border);
+        opacity: 0.9;
+    }
+
+    .quiz-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.6rem;
+        margin-top: 1.25rem;
+    }
+
+    #result-card {
+        text-align: center;
+    }
+
+    #result-title {
+        margin-bottom: 1rem;
+    }
+
+    .report {
+        display: grid;
+        gap: 0.5rem;
+        text-align: left;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+    }
+
+    .report-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .report-row.total {
+        border-top: 1px solid var(--border);
+        margin-top: 0.35rem;
+        padding-top: 0.5rem;
+        font-weight: 700;
+    }
+
+    .result-tip {
+        opacity: 0.85;
+        margin-bottom: 0;
+    }
+</style>
+
+<script>
+    interface CaseOption {
+        id: string;
+        label: string;
+    }
+
+    type Category = "signal" | "investigate" | "break";
+
+    interface CaseData {
+        category: Category;
+        context: string;
+        request?: string;
+        response?: string;
+        question: string;
+        type: "single" | "multi";
+        options: CaseOption[];
+        correct: string[];
+        explanation: string;
+    }
+
+    const CATEGORY_META: Record<Category, { label: string; icon: string }> = {
+        signal: { label: "Spot the Signal", icon: "\u{1F7E2}" },
+        investigate: { label: "Investigate", icon: "\u{1F7E1}" },
+        break: { label: "Break the API", icon: "\u{1F534}" },
+    };
+
+    const CASES: CaseData[] = [
+        {
+            category: "signal",
+            context: "You submit a new loan application through the API.",
+            request: "POST /loan-applications\nContent-Type: application/json\n\n{ \"amount\": 50000, \"applicantId\": \"APL-2291\" }",
+            response: "201 Created\nLocation: /loan-applications/8842",
+            question: "What does this response actually confirm?",
+            type: "single",
+            options: [
+                { id: "a", label: "A new resource was created, and the Location header tells you exactly where it lives" },
+                { id: "b", label: "The request was accepted but not processed yet" },
+                { id: "c", label: "The server is still validating the payload" },
+                { id: "d", label: "Nothing - 201 alone never proves persistence" },
+            ],
+            correct: ["a"],
+            explanation: "201 Created plus a Location header is the API telling you where the new resource lives - assert against that resource, not just the status code.",
+        },
+        {
+            category: "signal",
+            context: "You delete a user, then consider what to actually check.",
+            request: "DELETE /users/42",
+            response: "204 No Content",
+            question: "Beyond the status code, which of these are assertions worth making?",
+            type: "multi",
+            options: [
+                { id: "a", label: "GET /users/42 afterward returns 404" },
+                { id: "b", label: "The response body contains \"deleted\": true" },
+                { id: "c", label: "A second DELETE returns 204 or 404, not a 500" },
+                { id: "d", label: "The response arrives in under 50ms" },
+            ],
+            correct: ["a", "c"],
+            explanation: "204 has no body by definition, so asserting on body content is meaningless. The real signal is state: the resource is actually gone, and repeating the delete doesn't crash.",
+        },
+        {
+            category: "investigate",
+            context: "A short load test sends 100 requests in 10 seconds.",
+            request: "POST /orders x100 in 10s",
+            response: "429 Too Many Requests\nRetry-After: 30",
+            question: "What would you investigate first?",
+            type: "single",
+            options: [
+                { id: "a", label: "Whether the limit is scoped per-user, per-IP, or per-token" },
+                { id: "b", label: "Whether the server crashed" },
+                { id: "c", label: "Whether the payload was malformed" },
+                { id: "d", label: "Whether the auth token expired" },
+            ],
+            correct: ["a"],
+            explanation: "429 tells you that you're limited, not how the limit is scoped. Per-user vs per-IP vs global changes your entire concurrency test strategy.",
+        },
+        {
+            category: "investigate",
+            context: "A payment request comes back rejected.",
+            request: "POST /payments\nIdempotency-Key: abc-123",
+            response: "409 Conflict",
+            question: "What would you test next?",
+            type: "single",
+            options: [
+                { id: "a", label: "Send the exact same request again" },
+                { id: "b", label: "Check whether the payment was actually created despite the 409" },
+                { id: "c", label: "Switch the HTTP method to PUT" },
+                { id: "d", label: "Increase the client timeout" },
+            ],
+            correct: ["b"],
+            explanation: "A 409 on a payment doesn't tell you whether money moved. The highest-risk question is always \"did the side effect happen anyway?\" - check the ledger before you trust the response.",
+        },
+        {
+            category: "break",
+            context: "A profile lookup returns without error.",
+            request: "GET /users/123",
+            response: "200 OK\n\n{ \"name\": \"Ujjwal\", \"email\": null }",
+            question: "Is this response necessarily correct?",
+            type: "single",
+            options: [
+                { id: "a", label: "Yes - 200 means success" },
+                { id: "b", label: "No - HTTP success doesn't mean business success; a null email may violate a required field" },
+                { id: "c", label: "No - it should have returned 204 instead" },
+                { id: "d", label: "No - GET requests can never return 200" },
+            ],
+            correct: ["b"],
+            explanation: "\"assert response.status_code == 200\" would pass here. A tester who stops at the status code misses that a required field silently came back null.",
+        },
+        {
+            category: "break",
+            context: "An order is created without any error.",
+            request: "POST /orders\n\n{ \"items\": [\"sku-1921\"] }",
+            response: "201 Created\n\n{ \"orderId\": 123, \"amount\": 0, \"currency\": \"INR\" }",
+            question: "Something feels off. What catches your attention?",
+            type: "single",
+            options: [
+                { id: "a", label: "The HTTP status code" },
+                { id: "b", label: "amount = 0 on a successfully created order" },
+                { id: "c", label: "The currency field" },
+                { id: "d", label: "Nothing suspicious" },
+            ],
+            correct: ["b"],
+            explanation: "A successfully created order with a zero amount is a business-logic red flag - one that no assertion on status code or schema shape alone would ever catch.",
+        },
+        {
+            category: "investigate",
+            context: "A regular user tries an admin-only endpoint.",
+            request: "GET /admin/reports\nAuthorization: Bearer <valid-user-token>",
+            response: "403 Forbidden",
+            question: "What would you investigate next?",
+            type: "single",
+            options: [
+                { id: "a", label: "Whether the same boundary can be bypassed via a different route, header, or ID (IDOR angle)" },
+                { id: "b", label: "Whether the token expired" },
+                { id: "c", label: "Whether the endpoint exists at all" },
+                { id: "d", label: "Whether the request needs a body" },
+            ],
+            correct: ["a"],
+            explanation: "One clean 403 is a good sign, but the interesting test is adjacent: can this same boundary be bypassed through a different path, parameter, or token scope?",
+        },
+        {
+            category: "break",
+            context: "You page through a large order list.",
+            request: "GET /orders?page=2&limit=20",
+            response: "200 OK\nX-Total-Count: 45\n\n(20 items returned)",
+            question: "Which assertions matter here?",
+            type: "multi",
+            options: [
+                { id: "a", label: "Item count on this page is 20, or fewer on the last page" },
+                { id: "b", label: "Items on page 2 don't duplicate items from page 1" },
+                { id: "c", label: "Every page must always return exactly 20 items, no exceptions" },
+                { id: "d", label: "X-Total-Count matches the real total in the system" },
+            ],
+            correct: ["a", "b", "d"],
+            explanation: "Pagination bugs live in the boundaries and the overlaps - the last page returning fewer items is correct behaviour, not a bug.",
+        },
+        {
+            category: "investigate",
+            context: "A flaky network causes the same webhook call to fire twice.",
+            request: "POST /webhooks/payment-confirmed  (identical payload, sent twice)",
+            response: "200 OK  (both times, same body)",
+            question: "What would you check?",
+            type: "single",
+            options: [
+                { id: "a", label: "Nothing - two 200s means it's fine" },
+                { id: "b", label: "Whether the handler processed the event twice (e.g. duplicate charge or duplicate email)" },
+                { id: "c", label: "Whether the payload changed between calls" },
+                { id: "d", label: "Whether the response time increased on the second call" },
+            ],
+            correct: ["b"],
+            explanation: "A duplicate 200 doesn't prove idempotency - you have to check the side effect, not just the response code.",
+        },
+        {
+            category: "break",
+            context: "A signup request fails validation.",
+            request: "POST /users\n\n{ \"email\": \"not-an-email\" }",
+            response: "422 Unprocessable Entity\n\n{ \"errors\": [{ \"field\": \"email\", \"message\": \"invalid format\" }] }",
+            question: "Which assertions matter here?",
+            type: "multi",
+            options: [
+                { id: "a", label: "Status is 422, not 400 or 500" },
+                { id: "b", label: "The error response identifies the exact failing field" },
+                { id: "c", label: "The user should still be created, with a warning" },
+                { id: "d", label: "No user record was created in the DB" },
+            ],
+            correct: ["a", "b", "d"],
+            explanation: "Testers regularly skip the third leg of a negative test: state non-mutation. A rejected write should leave zero trace behind.",
+        },
+        {
+            category: "break",
+            context: "You update a profile, then immediately read it back.",
+            request: "PUT /profile { \"name\": \"New Name\" }  -> 200 OK\nGET /profile  (immediately after)",
+            response: "200 OK\n\n{ \"name\": \"Old Name\" }",
+            question: "What's happening, and what would you check?",
+            type: "single",
+            options: [
+                { id: "a", label: "The write failed silently - check for a rollback" },
+                { id: "b", label: "A stale cache is likely serving the read before invalidation completes" },
+                { id: "c", label: "The GET endpoint is broken and needs a rewrite" },
+                { id: "d", label: "This is expected - reads and writes are unrelated" },
+            ],
+            correct: ["b"],
+            explanation: "This is the classic write-then-read cache invalidation gap - a real production bug pattern, and not a status-code problem at all.",
+        },
+        {
+            category: "investigate",
+            context: "A checkout request times out at the gateway.",
+            request: "POST /checkout  (routed through gateway to payment service)",
+            response: "504 Gateway Timeout",
+            question: "What's the most useful next step?",
+            type: "single",
+            options: [
+                { id: "a", label: "Assume the payment failed and let the user retry immediately" },
+                { id: "b", label: "Check whether the payment service actually completed the transaction before the gateway gave up" },
+                { id: "c", label: "Treat it the same as a 502 and move on" },
+                { id: "d", label: "Ignore it - 504 is considered a client-side issue" },
+            ],
+            correct: ["b"],
+            explanation: "A timeout on your side doesn't mean nothing happened on the other side. This exact scenario is how duplicate charges happen when testers only look at the response.",
+        },
+    ];
+
+    function shuffle<T>(arr: T[]): T[] {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+    }
+
+    function sameSet(a: string[], b: string[]): boolean {
+        if (a.length !== b.length) return false;
+        const setB = new Set(b);
+        return a.every((x) => setB.has(x));
+    }
+
+    function initGame() {
+        const progressLabel = document.getElementById("progress-label");
+        const scoreLabel = document.getElementById("score-label");
+        const progressFill = document.getElementById("progress-fill");
+        const categoryBadge = document.getElementById("category-badge");
+        const scenarioText = document.getElementById("scenario-text");
+        const evidence = document.getElementById("evidence");
+        const questionText = document.getElementById("question-text");
+        const hintText = document.getElementById("hint-text");
+        const optionsGrid = document.getElementById("options-grid");
+        const explanation = document.getElementById("explanation");
+        const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
+        const nextBtn = document.getElementById("next-btn") as HTMLButtonElement | null;
+        const quizCard = document.getElementById("quiz-card");
+        const resultCard = document.getElementById("result-card");
+        const resultTitle = document.getElementById("result-title");
+        const report = document.getElementById("report");
+        const resultTip = document.getElementById("result-tip");
+        const retryBtn = document.getElementById("retry-btn");
+
+        if (!progressLabel || !scoreLabel || !progressFill || !categoryBadge || !scenarioText || !evidence || !questionText || !hintText || !optionsGrid || !explanation || !submitBtn || !nextBtn || !quizCard || !resultCard || !resultTitle || !report || !resultTip || !retryBtn) {
+            return;
+        }
+
+        let order: CaseData[] = [];
+        let index = 0;
+        let score = 0;
+        let streak = 0;
+        let bestStreak = 0;
+        let answered = false;
+        let selected: Set<string> = new Set();
+        const categoryStats: Record<Category, { correct: number; total: number }> = {
+            signal: { correct: 0, total: 0 },
+            investigate: { correct: 0, total: 0 },
+            break: { correct: 0, total: 0 },
+        };
+
+        function start() {
+            order = shuffle(CASES);
+            index = 0;
+            score = 0;
+            streak = 0;
+            bestStreak = 0;
+            (Object.keys(categoryStats) as Category[]).forEach((k) => {
+                categoryStats[k].correct = 0;
+                categoryStats[k].total = 0;
+            });
+            quizCard.hidden = false;
+            resultCard.hidden = true;
+            renderCase();
+        }
+
+        function evidenceBlock(label: string, text: string): string {
+            return `<div class="evidence-block"><div class="evidence-label">${label}</div><pre class="evidence-body">${text.replace(/</g, "&lt;")}</pre></div>`;
+        }
+
+        function renderCase() {
+            answered = false;
+            selected = new Set();
+            const c = order[index];
+            const meta = CATEGORY_META[c.category];
+
+            progressLabel.textContent = `Case ${index + 1} of ${order.length}`;
+            scoreLabel.textContent = `Score: ${score} · Streak: ${streak}`;
+            progressFill.style.width = `${(index / order.length) * 100}%`;
+
+            categoryBadge.textContent = `${meta.icon} ${meta.label}`;
+            categoryBadge.className = `category-badge ${c.category}`;
+            scenarioText.textContent = c.context;
+
+            evidence.innerHTML = "";
+            if (c.request) evidence.innerHTML += evidenceBlock("Request", c.request);
+            if (c.response) evidence.innerHTML += evidenceBlock("Response", c.response);
+
+            questionText.textContent = c.question;
+            hintText.hidden = c.type !== "multi";
+
+            explanation.hidden = true;
+            explanation.textContent = "";
+            submitBtn.hidden = c.type !== "multi";
+            nextBtn.hidden = true;
+
+            const opts = shuffle(c.options);
+            optionsGrid.innerHTML = "";
+            opts.forEach((opt) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "option-btn";
+                btn.dataset.id = opt.id;
+                btn.dataset.type = c.type;
+                btn.innerHTML = `<span class="option-marker"></span><span>${opt.label}</span>`;
+                if (c.type === "single") {
+                    btn.addEventListener("click", () => handleSingleAnswer(btn, opt.id, c));
+                } else {
+                    btn.addEventListener("click", () => toggleMultiOption(btn, opt.id));
+                }
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function toggleMultiOption(btn: HTMLButtonElement, id: string) {
+            if (answered) return;
+            if (selected.has(id)) {
+                selected.delete(id);
+                btn.classList.remove("selected");
+                btn.querySelector(".option-marker")!.textContent = "";
+            } else {
+                selected.add(id);
+                btn.classList.add("selected");
+                btn.querySelector(".option-marker")!.textContent = "✓";
+            }
+        }
+
+        function handleSingleAnswer(btn: HTMLButtonElement, id: string, c: CaseData) {
+            if (answered) return;
+            gradeAndReveal([id], btn, c);
+        }
+
+        function gradeAndReveal(chosen: string[], clickedBtn: HTMLButtonElement | null, c: CaseData) {
+            answered = true;
+            const isCorrect = sameSet(chosen, c.correct);
+
+            categoryStats[c.category].total += 1;
+            if (isCorrect) {
+                categoryStats[c.category].correct += 1;
+                score += 1;
+                streak += 1;
+                bestStreak = Math.max(bestStreak, streak);
+            } else {
+                streak = 0;
+            }
+
+            const chosenSet = new Set(chosen);
+            const correctSet = new Set(c.correct);
+            Array.from(optionsGrid.children).forEach((child) => {
+                const el = child as HTMLButtonElement;
+                el.disabled = true;
+                const id = el.dataset.id || "";
+                const wasChosen = chosenSet.has(id);
+                const isRight = correctSet.has(id);
+                if (isRight && wasChosen) el.classList.add("correct");
+                else if (!isRight && wasChosen) el.classList.add("incorrect");
+                else if (isRight && !wasChosen) el.classList.add("missed");
+            });
+
+            explanation.textContent = c.explanation;
+            explanation.hidden = false;
+            scoreLabel.textContent = `Score: ${score} · Streak: ${streak}`;
+            progressFill.style.width = `${((index + 1) / order.length) * 100}%`;
+            submitBtn.hidden = true;
+            nextBtn.hidden = false;
+            nextBtn.textContent = index === order.length - 1 ? "See Report" : "Next Case";
+        }
+
+        submitBtn.addEventListener("click", () => {
+            if (answered) return;
+            const c = order[index];
+            gradeAndReveal(Array.from(selected), null, c);
+        });
+
+        function showResults() {
+            quizCard.hidden = true;
+            resultCard.hidden = false;
+            const pct = Math.round((score / order.length) * 100);
+            let verdict = "Keep Investigating";
+            if (pct >= 90) verdict = "Sharp Eye";
+            else if (pct >= 70) verdict = "Solid Instincts";
+            else if (pct >= 50) verdict = "Getting There";
+
+            resultTitle.textContent = `${score} / ${order.length} · ${verdict}`;
+
+            const rows = (Object.keys(CATEGORY_META) as Category[]).map((k) => {
+                const meta = CATEGORY_META[k];
+                const s = categoryStats[k];
+                const line = s.total > 0 ? `${s.correct}/${s.total}` : "-";
+                return `<div class="report-row"><span>${meta.icon} ${meta.label}</span><span>${line}</span></div>`;
+            }).join("");
+            const totalRow = `<div class="report-row total"><span>Best streak</span><span>${bestStreak}</span></div>`;
+            report.innerHTML = rows + totalRow;
+
+            const weakest = (Object.keys(categoryStats) as Category[])
+                .filter((k) => categoryStats[k].total > 0)
+                .sort((a, b) => (categoryStats[a].correct / categoryStats[a].total) - (categoryStats[b].correct / categoryStats[b].total))[0];
+            const weakLabel = weakest ? CATEGORY_META[weakest].label : "";
+
+            resultTip.textContent = pct >= 70
+                ? "You'd catch the trap responses before they became a bad assertion in a PR."
+                : `Worth another round - ${weakLabel} cases are where the score slipped most.`;
+        }
+
+        nextBtn.addEventListener("click", () => {
+            if (index < order.length - 1) {
+                index += 1;
+                renderCase();
+            } else {
+                showResults();
+            }
+        });
+
+        retryBtn.addEventListener("click", start);
+
+        start();
+    }
+
+    document.addEventListener("astro:page-load", initGame);
+</script>

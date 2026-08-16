@@ -1,10 +1,9 @@
 ---
-import { THEME_CONFIG, SETTINGS } from "../../config";
+import { THEME_CONFIG } from "../../config";
 import Icon from "../ui/Icon.astro";
 
 const currentYear = new Date().getFullYear();
 const showToggle = THEME_CONFIG.lightAndDark;
-const showDevTools = import.meta.env.DEV || SETTINGS.addDevToolsInProduction;
 ---
 
 <footer class="footer">
@@ -33,18 +32,6 @@ const showDevTools = import.meta.env.DEV || SETTINGS.addDevToolsInProduction;
                     <Icon name="Sun" size={16} class="hidden dark:block" />
                     <Icon name="Moon" size={16} class="block dark:hidden" />
                 </button>
-            )
-        }
-        {
-            showDevTools && (
-                <a
-                    href="/dev-tools"
-                    aria-label="Developer Tools"
-                    title="Developer Tools"
-                    class="btn-icon"
-                >
-                    <Icon name="Settings" size={16} />
-                </a>
             )
         }
     </div>

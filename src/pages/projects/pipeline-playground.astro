@@ -1,0 +1,755 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BackLink from "../../components/ui/BackLink.astro";
+---
+
+<BaseLayout
+    title="Pipeline Playground"
+    description="Build it. Break it. Fix it. Ship it. A CI/CD simulation game - design a pipeline, run 20 PRs through it, and see what velocity, cost, and risk actually trade off against each other."
+>
+    <BackLink href="/projects" label="projects" />
+
+    <header class="page-header">
+        <h1 class="page-title">&#9881; Pipeline Playground</h1>
+        <p class="page-subtitle">Build it. Break it. Fix it. Ship it.</p>
+    </header>
+
+    <div class="container-narrow pp-wrap">
+        <!-- Intro -->
+        <div id="pp-intro" class="pp-card">
+            <p class="body"><strong>You have inherited a broken pipeline.</strong></p>
+            <pre class="pp-mono pp-diagram">PR #101
+  |
+Lint (30s)
+  |
+Unit (2m)
+  |
+API (3m)
+  |
+E2E (12m) - Selenium, sequential
+  |
+Merge</pre>
+            <p class="body">Developers are waiting <strong>~28 minutes</strong> for feedback on every PR.</p>
+            <p class="body">Your job: make it faster without making production less safe.</p>
+            <div class="pp-actions">
+                <button type="button" class="btn" id="pp-take-control-btn">Take Control &rarr;</button>
+            </div>
+        </div>
+
+        <!-- Mission briefing -->
+        <div id="pp-briefing" class="pp-card" hidden>
+            <h2 class="title-md">Mission 01 &mdash; The Monolith Bottleneck</h2>
+            <table class="pp-table">
+                <tbody>
+                    <tr><td>Company</td><td>FinBank</td></tr>
+                    <tr><td>Team</td><td>5 developers</td></tr>
+                    <tr><td>Application</td><td>Banking API</td></tr>
+                    <tr><td>Release frequency</td><td>10 PRs/day</td></tr>
+                </tbody>
+            </table>
+
+            <p class="body-sm pp-field-label">Mission objectives</p>
+            <table class="pp-table">
+                <tbody>
+                    <tr><td>PR feedback</td><td>&lt; 6 min</td></tr>
+                    <tr><td>Estimated Runner Cost</td><td>&le; $400</td></tr>
+                    <tr><td>Critical escapes</td><td>= 0</td></tr>
+                </tbody>
+            </table>
+
+            <p class="body-sm pp-field-label">Available tools</p>
+            <p class="body-sm">Move stage &middot; Parallelize &middot; Change runner tier</p>
+
+            <div class="pp-actions">
+                <button type="button" class="btn" id="pp-configure-btn">Configure Pipeline</button>
+            </div>
+        </div>
+
+        <!-- Board -->
+        <div id="pp-board" hidden>
+            <div class="pp-status-bar">
+                <span class="body-sm" id="pp-tier-label">Runner tier: Standard (2 runners)</span>
+                <span class="body-sm" id="pp-runs-label">Runs so far: 0</span>
+            </div>
+
+            <div class="pp-lanes">
+                <div class="pp-card pp-lane" data-lane="pr">
+                    <h3 class="title-md">PR</h3>
+                    <div class="pp-stage-list" id="pp-lane-pr"></div>
+                </div>
+                <div class="pp-card pp-lane" data-lane="merge">
+                    <h3 class="title-md">MERGE</h3>
+                    <div class="pp-stage-list" id="pp-lane-merge"></div>
+                </div>
+                <div class="pp-card pp-lane" data-lane="release">
+                    <h3 class="title-md">RELEASE</h3>
+                    <div class="pp-stage-list" id="pp-lane-release"></div>
+                </div>
+            </div>
+
+            <div class="pp-card">
+                <h3 class="title-md">Runner Tier</h3>
+                <div class="pp-tier-options">
+                    <label class="pp-radio-option"><input type="radio" name="pp-tier" value="standard" checked /> Standard - 2 runners, lower cost</label>
+                    <label class="pp-radio-option"><input type="radio" name="pp-tier" value="turbo" /> Turbo - 6 runners, higher cost</label>
+                </div>
+                <p class="body-xs pp-cost-note">
+                    <strong>Cost model (MVP: Per-Run).</strong> Estimated Runner Cost = &Sigma;(stage duration &times; runner rate) + tier overhead, for one full run of 20 PRs.
+                    Moving or parallelizing a stage changes wall-clock time, not total compute - each stage still executes exactly once per PR - so cost here only moves via Runner Tier.
+                    Modeling cost drops from triggering expensive stages less often (e.g. moving them past every PR push) needs a trigger-frequency layer this MVP doesn't build yet.
+                </p>
+            </div>
+
+            <div class="pp-card">
+                <h3 class="title-md">Terminal</h3>
+                <div id="pp-terminal-output" class="pp-mono pp-terminal-output"></div>
+                <div class="pp-terminal-input-row">
+                    <span class="pp-mono">pipeline&gt;</span>
+                    <input type="text" id="pp-terminal-input" class="svr-input pp-mono" placeholder="try: help" />
+                </div>
+            </div>
+
+            <div class="pp-actions">
+                <button type="button" class="btn" id="pp-run-btn">&#9654; RUN PIPELINE</button>
+            </div>
+        </div>
+
+        <!-- Live simulation -->
+        <div id="pp-live" class="pp-card" hidden>
+            <h2 class="title-md">Live Activity</h2>
+            <div class="pp-status-bar">
+                <span class="body-sm" id="pp-live-velocity">Velocity: -</span>
+                <span class="body-sm" id="pp-live-cost">Runner Cost: -</span>
+                <span class="body-sm" id="pp-live-risk">Risk: -</span>
+            </div>
+            <div id="pp-ticker" class="pp-mono pp-ticker"></div>
+
+            <div id="pp-flaky-prompt" class="pp-flaky-prompt" hidden>
+                <p class="body">&#9888; Flaky result detected on <span id="pp-flaky-stage"></span> for <span id="pp-flaky-pr"></span></p>
+                <div class="pp-actions">
+                    <button type="button" class="btn" id="pp-retry-btn">RETRY</button>
+                    <button type="button" class="btn" id="pp-quarantine-btn">QUARANTINE</button>
+                </div>
+            </div>
+
+            <div id="pp-pr-grid" class="pp-pr-grid"></div>
+        </div>
+
+        <!-- Debrief -->
+        <div id="pp-debrief" class="pp-card" hidden>
+            <h2 class="title-md">Pipeline Debrief</h2>
+            <div class="pp-report" id="pp-report"></div>
+
+            <div id="pp-mission-banner" class="pp-mission-banner" hidden></div>
+
+            <div id="pp-diff-section" hidden>
+                <p class="body-sm pp-field-label">Before / After</p>
+                <div class="pp-report" id="pp-diff"></div>
+            </div>
+
+            <p class="body-sm pp-field-label">Why?</p>
+            <div class="body-sm" id="pp-why"></div>
+
+            <div class="pp-actions">
+                <button type="button" class="btn" id="pp-improve-btn">Improve Pipeline</button>
+            </div>
+        </div>
+    </div>
+</BaseLayout>
+
+<style is:global>
+    .pp-wrap {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .pp-card {
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        background: var(--surface);
+    }
+
+    .pp-mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+    }
+
+    .pp-diagram {
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.85rem 1rem;
+        background: var(--background);
+        line-height: 1.6;
+        margin: 0.85rem 0;
+        white-space: pre-wrap;
+    }
+
+    .pp-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.6rem 0 1rem;
+        font-size: 0.88rem;
+    }
+
+    .pp-table td {
+        border: 1px solid var(--border);
+        padding: 0.4rem 0.7rem;
+    }
+
+    .pp-table td:first-child {
+        opacity: 0.7;
+        width: 45%;
+    }
+
+    .pp-field-label {
+        font-weight: 600;
+        margin-top: 0.9rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .pp-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.6rem;
+        margin-top: 1.25rem;
+    }
+
+    .pp-status-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.6rem 1rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .pp-lanes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .pp-lane h3 {
+        margin-bottom: 0.75rem;
+    }
+
+    .pp-stage-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .pp-stage-card {
+        border: 1px solid var(--border);
+        border-radius: 0.4rem;
+        padding: 0.5rem 0.7rem;
+        font-size: 0.82rem;
+    }
+
+    .pp-stage-card.parallel {
+        border-color: var(--accent);
+    }
+
+    .pp-stage-meta {
+        opacity: 0.65;
+        font-size: 0.75rem;
+        margin-top: 0.15rem;
+    }
+
+    .pp-stage-controls {
+        display: flex;
+        gap: 0.4rem;
+        margin-top: 0.4rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .pp-stage-controls select {
+        font-size: 0.75rem;
+        padding: 0.15rem 0.3rem;
+        border: 1px solid var(--border);
+        border-radius: 0.3rem;
+        background: var(--background);
+        color: var(--foreground);
+    }
+
+    .pp-stage-controls label {
+        font-size: 0.72rem;
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+        opacity: 0.85;
+    }
+
+    .pp-tier-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .pp-radio-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.88rem;
+        padding: 0.45rem 0.6rem;
+        border: 1px solid var(--border);
+        border-radius: 0.4rem;
+        cursor: pointer;
+    }
+
+    .pp-cost-note {
+        margin-top: 0.85rem;
+        padding: 0.65rem 0.8rem;
+        border: 1px dashed var(--border);
+        border-radius: 0.4rem;
+        opacity: 0.8;
+        line-height: 1.5;
+    }
+
+    .pp-terminal-output {
+        min-height: 60px;
+        max-height: 180px;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+        border-radius: 0.4rem;
+        padding: 0.6rem 0.75rem;
+        background: var(--background);
+        white-space: pre-wrap;
+        margin-bottom: 0.6rem;
+        line-height: 1.5;
+    }
+
+    .pp-terminal-input-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pp-ticker {
+        min-height: 100px;
+        max-height: 260px;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: var(--background);
+        line-height: 1.7;
+        margin: 0.75rem 0;
+    }
+
+    .pp-ticker div {
+        opacity: 0;
+        animation: pp-fade-in 0.2s ease forwards;
+    }
+
+    @keyframes pp-fade-in {
+        to { opacity: 1; }
+    }
+
+    .pp-flaky-prompt {
+        border: 1px solid #d97706;
+        border-radius: 0.5rem;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1rem;
+        background: color-mix(in srgb, #d97706 10%, transparent);
+    }
+
+    .pp-pr-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    .pp-pr-chip {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.72rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.3rem;
+        border: 1px solid var(--border);
+    }
+
+    .pp-pr-chip.deployed { border-color: #16a34a; color: #16a34a; }
+    .pp-pr-chip.escaped { border-color: #dc2626; color: #dc2626; background: color-mix(in srgb, #dc2626 12%, transparent); }
+    .pp-pr-chip.pending { opacity: 0.5; }
+
+    .pp-report {
+        display: grid;
+        gap: 0.4rem;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+    }
+
+    .pp-report-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .pp-report-row .pp-ok { color: #16a34a; }
+    .pp-report-row .pp-bad { color: #dc2626; }
+
+    .pp-mission-banner {
+        border: 1px solid #16a34a;
+        border-radius: 0.5rem;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1rem;
+        background: color-mix(in srgb, #16a34a 10%, transparent);
+        font-weight: 600;
+    }
+</style>
+
+<script>
+    import { PipelineEngine } from "../../lib/pipeline-engine/engine";
+    import { runCommand } from "../../lib/pipeline-engine/commands";
+    import { initialPipeline, MISSION_01_SEED, MISSION_01_BRIEFING, RUNNER_TIERS } from "../../lib/pipeline-engine/missions/mission-01";
+    import { resolveGroups } from "../../lib/pipeline-engine/scheduler";
+    import type { LaneId, Metrics, StageId, SystemState } from "../../lib/pipeline-engine/types";
+
+    const STAGE_LABELS: Record<StageId, string> = {
+        lint: "Lint",
+        unit: "Unit Tests",
+        api: "API Tests",
+        e2e: "E2E (Selenium)",
+        build: "Build",
+        security: "Security Scan",
+        staging: "Staging Deploy",
+        production: "Production Deploy",
+    };
+
+    function fmtTime(ms: number): string {
+        const totalSec = Math.round(ms / 1000);
+        const m = Math.floor(totalSec / 60);
+        const s = totalSec % 60;
+        return `${m}m ${s}s`;
+    }
+
+    function riskLabel(metrics: Metrics): string {
+        return metrics.criticalEscapes === 0 ? "Low" : metrics.criticalEscapes === 1 ? "Medium" : "High";
+    }
+
+    function initGame() {
+        const introEl = document.getElementById("pp-intro");
+        const briefingEl = document.getElementById("pp-briefing");
+        const boardEl = document.getElementById("pp-board");
+        const liveEl = document.getElementById("pp-live");
+        const debriefEl = document.getElementById("pp-debrief");
+
+        const takeControlBtn = document.getElementById("pp-take-control-btn");
+        const configureBtn = document.getElementById("pp-configure-btn");
+        const runBtn = document.getElementById("pp-run-btn");
+        const improveBtn = document.getElementById("pp-improve-btn");
+
+        const tierLabel = document.getElementById("pp-tier-label");
+        const runsLabel = document.getElementById("pp-runs-label");
+        const tickerEl = document.getElementById("pp-ticker");
+        const liveVelocity = document.getElementById("pp-live-velocity");
+        const liveCost = document.getElementById("pp-live-cost");
+        const liveRisk = document.getElementById("pp-live-risk");
+        const prGrid = document.getElementById("pp-pr-grid");
+
+        const flakyPrompt = document.getElementById("pp-flaky-prompt");
+        const flakyStageEl = document.getElementById("pp-flaky-stage");
+        const flakyPrEl = document.getElementById("pp-flaky-pr");
+        const retryBtn = document.getElementById("pp-retry-btn");
+        const quarantineBtn = document.getElementById("pp-quarantine-btn");
+
+        const reportEl = document.getElementById("pp-report");
+        const missionBanner = document.getElementById("pp-mission-banner");
+        const diffSection = document.getElementById("pp-diff-section");
+        const diffEl = document.getElementById("pp-diff");
+        const whyEl = document.getElementById("pp-why");
+
+        const terminalOutput = document.getElementById("pp-terminal-output");
+        const terminalInput = document.getElementById("pp-terminal-input") as HTMLInputElement | null;
+
+        if (!introEl || !briefingEl || !boardEl || !liveEl || !debriefEl || !takeControlBtn || !configureBtn || !runBtn || !improveBtn ||
+            !tierLabel || !runsLabel || !tickerEl || !liveVelocity || !liveCost || !liveRisk || !prGrid ||
+            !flakyPrompt || !flakyStageEl || !flakyPrEl || !retryBtn || !quarantineBtn ||
+            !reportEl || !missionBanner || !diffSection || !diffEl || !whyEl || !terminalOutput || !terminalInput) {
+            return;
+        }
+
+        const engine = new PipelineEngine(initialPipeline(), MISSION_01_SEED, "standard");
+        let lastEventIndex = 0;
+        let lastMetrics: Metrics | null = null;
+        let changesSinceLastRun: string[] = [];
+
+        function renderBoard() {
+            const state = engine.getState();
+            const groups = resolveGroups(state.pipeline);
+
+            (["pr", "merge", "release"] as LaneId[]).forEach((lane) => {
+                const container = document.getElementById(`pp-lane-${lane}`);
+                if (!container) return;
+                container.innerHTML = "";
+                const laneGroups = groups.filter((g) => g.lane === lane);
+                laneGroups.forEach((group) => {
+                    group.stages.forEach((stage) => {
+                        const card = document.createElement("div");
+                        card.className = "pp-stage-card" + (group.stages.length > 1 ? " parallel" : "");
+                        card.innerHTML = `
+                            <div><strong>${stage.name}</strong></div>
+                            <div class="pp-stage-meta">${fmtTime(stage.durationMs)} &middot; $${stage.costPerMinute}/min${group.stages.length > 1 ? " &middot; parallel" : ""}</div>
+                        `;
+                        const controls = document.createElement("div");
+                        controls.className = "pp-stage-controls";
+                        controls.innerHTML = `
+                            <label>Lane:
+                                <select data-stage="${stage.id}" class="pp-move-select">
+                                    <option value="pr" ${stage.lane === "pr" ? "selected" : ""}>PR</option>
+                                    <option value="merge" ${stage.lane === "merge" ? "selected" : ""}>Merge</option>
+                                    <option value="release" ${stage.lane === "release" ? "selected" : ""}>Release</option>
+                                </select>
+                            </label>
+                            <label><input type="checkbox" class="pp-parallel-check" data-stage="${stage.id}" data-lane="${stage.lane}" /> select</label>
+                        `;
+                        card.appendChild(controls);
+                        container.appendChild(card);
+                    });
+                });
+            });
+
+            container_bind();
+        }
+
+        function container_bind() {
+            document.querySelectorAll<HTMLSelectElement>(".pp-move-select").forEach((sel) => {
+                sel.addEventListener("change", () => {
+                    const stageId = sel.dataset.stage as StageId;
+                    engine.moveStage(stageId, sel.value as LaneId);
+                    changesSinceLastRun.push(`Moved ${STAGE_LABELS[stageId]} to ${sel.value}`);
+                    renderBoard();
+                });
+            });
+        }
+
+        function parallelizeSelected() {
+            const checked = Array.from(document.querySelectorAll<HTMLInputElement>(".pp-parallel-check:checked"));
+            if (checked.length < 2) return;
+            const ids = checked.map((c) => c.dataset.stage as StageId);
+            engine.parallelize(ids);
+            changesSinceLastRun.push(`Parallelized ${ids.map((id) => STAGE_LABELS[id]).join(" + ")}`);
+            renderBoard();
+        }
+
+        document.addEventListener("change", (e) => {
+            const target = e.target as HTMLElement;
+            if (target.classList.contains("pp-parallel-check")) {
+                const lane = (target as HTMLInputElement).dataset.lane;
+                const checkedInLane = Array.from(document.querySelectorAll<HTMLInputElement>(`.pp-parallel-check[data-lane="${lane}"]:checked`));
+                if (checkedInLane.length >= 2) {
+                    parallelizeSelected();
+                }
+            }
+        });
+
+        document.querySelectorAll<HTMLInputElement>('input[name="pp-tier"]').forEach((radio) => {
+            radio.addEventListener("change", () => {
+                if (!radio.checked) return;
+                const tierId = radio.value as "standard" | "turbo";
+                engine.setRunnerTier(tierId);
+                const tier = RUNNER_TIERS[tierId];
+                tierLabel.textContent = `Runner tier: ${tier.label} (${tier.count} runners)`;
+                changesSinceLastRun.push(`Runner tier changed to ${tier.label}`);
+            });
+        });
+
+        takeControlBtn.addEventListener("click", () => {
+            introEl.hidden = true;
+            briefingEl.hidden = false;
+        });
+
+        configureBtn.addEventListener("click", () => {
+            briefingEl.hidden = true;
+            boardEl.hidden = false;
+            renderBoard();
+        });
+
+        function appendTicker(lines: string[], onDone: () => void) {
+            let i = 0;
+            function next() {
+                if (i >= lines.length) {
+                    onDone();
+                    return;
+                }
+                const div = document.createElement("div");
+                div.textContent = lines[i];
+                tickerEl!.appendChild(div);
+                tickerEl!.scrollTop = tickerEl!.scrollHeight;
+                i += 1;
+                setTimeout(next, 120);
+            }
+            next();
+        }
+
+        function renderPrGrid(state: SystemState) {
+            prGrid.innerHTML = "";
+            state.prs.forEach((pr) => {
+                const chip = document.createElement("span");
+                const cls = pr.status === "escaped" ? "escaped" : pr.status === "deployed" || pr.status === "passed" ? "deployed" : "pending";
+                chip.className = `pp-pr-chip ${cls}`;
+                chip.textContent = `#${pr.id} ${pr.status === "escaped" ? "⚠" : pr.status === "deployed" || pr.status === "passed" ? "✓" : "⋯"}`;
+                prGrid.appendChild(chip);
+            });
+        }
+
+        function updateLiveMetrics(state: SystemState) {
+            liveVelocity.textContent = `Velocity: ${state.metrics.avgPrCycleMs ? fmtTime(state.metrics.avgPrCycleMs) : "-"}`;
+            liveCost.textContent = `Runner Cost: $${state.metrics.totalCost}`;
+            liveRisk.textContent = `Risk: ${riskLabel(state.metrics)}`;
+        }
+
+        function continueReplay() {
+            const state = engine.getState();
+            const newEvents = state.events.slice(lastEventIndex);
+            lastEventIndex = state.events.length;
+            const lines = newEvents
+                .filter((e) => e.type !== "JOB_STARTED")
+                .map((e) => `${fmtTime(e.time)}  ${e.message}`);
+
+            appendTicker(lines, () => {
+                updateLiveMetrics(state);
+                renderPrGrid(state);
+
+                if (state.status === "awaiting_decision" && state.pendingDecision) {
+                    flakyStageEl.textContent = STAGE_LABELS[state.pendingDecision.stageId];
+                    flakyPrEl.textContent = `PR #${state.pendingDecision.prId}`;
+                    flakyPrompt.hidden = false;
+                    return;
+                }
+
+                flakyPrompt.hidden = true;
+                if (state.status === "completed") {
+                    showDebrief(state);
+                }
+            });
+        }
+
+        runBtn.addEventListener("click", () => {
+            boardEl.hidden = true;
+            liveEl.hidden = false;
+            debriefEl.hidden = true;
+            tickerEl.innerHTML = "";
+            prGrid.innerHTML = "";
+            flakyPrompt.hidden = true;
+            lastEventIndex = 0;
+            engine.run();
+            continueReplay();
+        });
+
+        retryBtn.addEventListener("click", () => {
+            flakyPrompt.hidden = true;
+            engine.resolveFlaky("retry");
+            continueReplay();
+        });
+
+        quarantineBtn.addEventListener("click", () => {
+            flakyPrompt.hidden = true;
+            engine.resolveFlaky("quarantine");
+            continueReplay();
+        });
+
+        function showDebrief(state: SystemState) {
+            liveEl.hidden = true;
+            debriefEl.hidden = false;
+
+            const targets = MISSION_01_BRIEFING.objectives;
+            const velocityOk = state.metrics.avgPrCycleMs > 0 && state.metrics.avgPrCycleMs < targets.prFeedbackTargetMs;
+            const costOk = state.metrics.totalCost <= targets.runnerCostBudget;
+            const escapesOk = state.metrics.criticalEscapes <= targets.criticalEscapesTarget;
+
+            reportEl.innerHTML = `
+                <div class="pp-report-row"><span>&#9889; PR Feedback</span><span class="${velocityOk ? "pp-ok" : "pp-bad"}">${state.metrics.avgPrCycleMs ? fmtTime(state.metrics.avgPrCycleMs) : "-"} (target &lt; 6m)</span></div>
+                <div class="pp-report-row"><span>&#128176; Estimated Runner Cost</span><span class="${costOk ? "pp-ok" : "pp-bad"}">$${state.metrics.totalCost} (budget $${targets.runnerCostBudget})</span></div>
+                <div class="pp-report-row"><span>&#128737; Critical Escapes</span><span class="${escapesOk ? "pp-ok" : "pp-bad"}">${state.metrics.criticalEscapes} (target 0)</span></div>
+                <div class="pp-report-row"><span>&#128101; Developer Experience</span><span>${state.metrics.devExperience}%</span></div>
+            `;
+
+            missionBanner.hidden = false;
+            missionBanner.className = "pp-mission-banner";
+            if (velocityOk && costOk && escapesOk) {
+                missionBanner.style.borderColor = "";
+                missionBanner.style.background = "";
+                missionBanner.textContent = "✅ MISSION COMPLETE - all three targets met.";
+            } else {
+                missionBanner.style.borderColor = "#dc2626";
+                missionBanner.style.background = "color-mix(in srgb, #dc2626 10%, transparent)";
+                missionBanner.textContent = escapesOk
+                    ? "Not there yet - velocity or cost target missed. Adjust the pipeline and run again."
+                    : "⚠ Production incident: an integration defect escaped undetected.";
+            }
+
+            if (lastMetrics) {
+                const pct = (before: number, after: number) => {
+                    if (before === 0) return "-";
+                    const change = ((after - before) / before) * 100;
+                    return `${change >= 0 ? "+" : ""}${change.toFixed(0)}%`;
+                };
+                diffSection.hidden = false;
+                diffEl.innerHTML = `
+                    <div class="pp-report-row"><span></span><span>BEFORE &rarr; AFTER</span></div>
+                    <div class="pp-report-row"><span>PR Time</span><span>${fmtTime(lastMetrics.avgPrCycleMs)} &rarr; ${fmtTime(state.metrics.avgPrCycleMs)} (${pct(lastMetrics.avgPrCycleMs, state.metrics.avgPrCycleMs)})</span></div>
+                    <div class="pp-report-row"><span>Runner Cost</span><span>$${lastMetrics.totalCost} &rarr; $${state.metrics.totalCost} (${pct(lastMetrics.totalCost, state.metrics.totalCost)})</span></div>
+                    <div class="pp-report-row"><span>Escapes</span><span>${lastMetrics.criticalEscapes} &rarr; ${state.metrics.criticalEscapes}</span></div>
+                    <div class="pp-report-row"><span>Dev Experience</span><span>${lastMetrics.devExperience}% &rarr; ${state.metrics.devExperience}%</span></div>
+                `;
+            } else {
+                diffSection.hidden = true;
+            }
+
+            const touchedLayout = changesSinceLastRun.some((c) => c.startsWith("Moved") || c.startsWith("Parallelized"));
+            const costUnchanged = lastMetrics ? state.metrics.totalCost === lastMetrics.totalCost : false;
+            whyEl.innerHTML = (changesSinceLastRun.length
+                ? `<ul>${changesSinceLastRun.map((c) => `<li>${c}</li>`).join("")}</ul>`
+                : `<p>No configuration changes yet - this is the pipeline exactly as you inherited it.</p>`)
+                + (touchedLayout && costUnchanged
+                    ? `<p class="body-sm" style="margin-top:0.5rem;opacity:0.75;">Runner Cost didn't move because Move/Parallelize change wall-clock time, not total compute - each stage still runs exactly once per PR either way. Only Runner Tier changes cost.</p>`
+                    : "");
+
+            lastMetrics = { ...state.metrics };
+            changesSinceLastRun = [];
+            runsLabel.textContent = `Runs so far: ${state.metrics.totalRuns}`;
+        }
+
+        improveBtn.addEventListener("click", () => {
+            debriefEl.hidden = true;
+            boardEl.hidden = false;
+            renderBoard();
+        });
+
+        terminalInput.addEventListener("keydown", (e) => {
+            if (e.key !== "Enter") return;
+            const raw = terminalInput.value;
+            if (!raw.trim()) return;
+            const output = runCommand(engine, raw);
+            const echo = document.createElement("div");
+            echo.textContent = `pipeline> ${raw}`;
+            terminalOutput.appendChild(echo);
+            output.forEach((line) => {
+                const div = document.createElement("div");
+                div.textContent = line;
+                terminalOutput.appendChild(div);
+            });
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+            terminalInput.value = "";
+            renderBoard();
+            const tierRadio = document.querySelector<HTMLInputElement>(`input[name="pp-tier"][value="${engine.getState().runnerTier}"]`);
+            if (tierRadio) tierRadio.checked = true;
+        });
+    }
+
+    document.addEventListener("astro:page-load", initGame);
+</script>

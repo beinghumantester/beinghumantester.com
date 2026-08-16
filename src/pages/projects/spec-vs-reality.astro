@@ -1,0 +1,929 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BackLink from "../../components/ui/BackLink.astro";
+---
+
+<BaseLayout
+    title="Spec vs. Reality"
+    description="You have a contract, 15 requests, and 3 minutes. Find the real violations - and prove them with evidence."
+>
+    <BackLink href="/projects" label="projects" />
+
+    <header class="page-header">
+        <h1 class="page-title">Spec vs. Reality</h1>
+        <p class="page-subtitle">A contract, a request budget, and a clock. Find what breaks it - then prove it.</p>
+    </header>
+
+    <div class="container-narrow svr-wrap">
+        <!-- Briefing -->
+        <div id="svr-briefing" class="svr-card">
+            <h2 class="title-md">The Contract</h2>
+            <p class="body svr-mono">POST /users</p>
+
+            <table class="svr-table">
+                <thead>
+                    <tr><th>Field</th><th>Required</th><th>Type</th><th>Rule</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>name</td><td>Yes</td><td>string</td><td>non-empty</td></tr>
+                    <tr><td>email</td><td>Yes</td><td>string</td><td>valid email</td></tr>
+                    <tr><td>age</td><td>Yes</td><td>integer</td><td>&ge; 18</td></tr>
+                </tbody>
+            </table>
+
+            <p class="body-sm">Expected responses: <span class="svr-mono">201 Created</span> · <span class="svr-mono">400 Bad Request</span> · <span class="svr-mono">409 Conflict</span></p>
+            <p class="body-sm svr-budget-line">Budget: 3:00 on the clock, 15 requests. Reporting a finding doesn't cost a request.</p>
+
+            <div class="svr-actions">
+                <button type="button" class="btn" id="svr-start-btn">Start Investigation</button>
+            </div>
+        </div>
+
+        <!-- Play area -->
+        <div id="svr-play" hidden>
+            <div class="svr-status-bar">
+                <span class="svr-mono" id="svr-timer">03:00</span>
+                <span class="body-sm" id="svr-requests-left">Requests: 15</span>
+                <span class="body-sm" id="svr-findings-count">Findings: 0</span>
+                <span class="body-sm" id="svr-score">Score: 0</span>
+            </div>
+
+            <details class="svr-card svr-spec-collapsed">
+                <summary class="title-md">Contract (reference)</summary>
+                <table class="svr-table svr-table-compact">
+                    <thead>
+                        <tr><th>Field</th><th>Required</th><th>Type</th><th>Rule</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>name</td><td>Yes</td><td>string</td><td>non-empty</td></tr>
+                        <tr><td>email</td><td>Yes</td><td>string</td><td>valid email</td></tr>
+                        <tr><td>age</td><td>Yes</td><td>integer</td><td>&ge; 18</td></tr>
+                    </tbody>
+                </table>
+            </details>
+
+            <div class="svr-card">
+                <h2 class="title-md">Build Request</h2>
+                <p class="body-sm svr-mono">POST /users</p>
+
+                <div class="svr-field-row">
+                    <label class="svr-field-toggle"><input type="checkbox" id="svr-include-name" checked /> name</label>
+                    <input type="text" id="svr-name" class="svr-input" value="Ujjwal" />
+                </div>
+
+                <div class="svr-field-row">
+                    <label class="svr-field-toggle"><input type="checkbox" id="svr-include-email" checked /> email</label>
+                    <input type="text" id="svr-email" class="svr-input" value="u@example.com" />
+                </div>
+
+                <div class="svr-field-row">
+                    <label class="svr-field-toggle"><input type="checkbox" id="svr-include-age" checked /> age</label>
+                    <input type="text" id="svr-age" class="svr-input" value="25" />
+                    <span class="svr-type-toggle">
+                        <label><input type="radio" name="svr-age-type" value="number" checked /> Number</label>
+                        <label><input type="radio" name="svr-age-type" value="string" /> Text</label>
+                    </span>
+                </div>
+
+                <div class="svr-actions">
+                    <button type="button" class="btn" id="svr-send-btn">Send Request</button>
+                </div>
+            </div>
+
+            <div class="svr-card">
+                <h2 class="title-md">Response</h2>
+                <div id="svr-response-content" class="body-sm svr-response-empty">Send a request to see the response here.</div>
+            </div>
+
+            <div class="svr-card">
+                <h2 class="title-md">Request History</h2>
+                <div id="svr-history-list" class="body-sm svr-response-empty">No requests sent yet.</div>
+            </div>
+
+            <div class="svr-actions svr-actions-main">
+                <button type="button" class="btn" id="svr-report-btn" disabled>&#x1F6A8; Report Finding</button>
+                <button type="button" class="btn" id="svr-end-btn">End Investigation</button>
+            </div>
+        </div>
+
+        <!-- Report finding modal -->
+        <div id="svr-modal-overlay" class="svr-modal-overlay" hidden>
+            <div class="svr-modal svr-card">
+                <h2 class="title-md">Report Finding</h2>
+
+                <p class="body-sm svr-field-label">What did you find?</p>
+                <div id="svr-category-options" class="svr-radio-group"></div>
+
+                <p class="body-sm svr-field-label">Evidence</p>
+                <select id="svr-evidence-select" class="svr-input"></select>
+
+                <p class="body-sm svr-field-label">Expected</p>
+                <select id="svr-expected-select" class="svr-input">
+                    <option value="201">201 Created</option>
+                    <option value="400">400 Bad Request</option>
+                    <option value="409">409 Conflict</option>
+                </select>
+
+                <p class="body-sm svr-field-label">Actual (from evidence)</p>
+                <div id="svr-actual-display" class="svr-mono svr-actual-badge">-</div>
+
+                <div class="svr-actions">
+                    <button type="button" class="btn" id="svr-cancel-finding-btn">Cancel</button>
+                    <button type="button" class="btn" id="svr-submit-finding-btn">Submit Finding</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finding feedback -->
+        <div id="svr-feedback" class="svr-card" hidden>
+            <h2 class="title-md" id="svr-feedback-title"></h2>
+            <div class="body" id="svr-feedback-body"></div>
+            <div class="svr-actions">
+                <button type="button" class="btn" id="svr-feedback-continue-btn">Continue Investigating</button>
+            </div>
+        </div>
+
+        <!-- End screen -->
+        <div id="svr-result" class="svr-card" hidden>
+            <h2 class="title-md">Investigation Complete</h2>
+            <div class="svr-report" id="svr-report"></div>
+            <div class="svr-skills" id="svr-skills"></div>
+            <div class="svr-missed" id="svr-missed"></div>
+            <p class="body-sm svr-closing-line">Good testing isn't finding everything. It's finding the important things with the evidence to prove them.</p>
+            <div class="svr-actions">
+                <button type="button" class="btn" id="svr-retry-btn">Play Again</button>
+            </div>
+        </div>
+    </div>
+</BaseLayout>
+
+<style is:global>
+    .svr-wrap {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .svr-card {
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        background: var(--surface);
+    }
+
+    .svr-card > h2 {
+        margin-bottom: 0.6rem;
+    }
+
+    .svr-mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+    }
+
+    .svr-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.85rem 0;
+        font-size: 0.85rem;
+    }
+
+    .svr-table th,
+    .svr-table td {
+        border: 1px solid var(--border);
+        padding: 0.4rem 0.6rem;
+        text-align: left;
+    }
+
+    .svr-table th {
+        opacity: 0.7;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    .svr-table-compact {
+        margin-top: 0.75rem;
+    }
+
+    .svr-spec-collapsed summary {
+        cursor: pointer;
+    }
+
+    .svr-budget-line {
+        opacity: 0.75;
+    }
+
+    .svr-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.6rem;
+        margin-top: 1.1rem;
+    }
+
+    .svr-actions-main {
+        justify-content: space-between;
+    }
+
+    .svr-status-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.6rem 1rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .svr-field-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.65rem;
+        flex-wrap: wrap;
+    }
+
+    .svr-field-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.85rem;
+        width: 5.5rem;
+        flex-shrink: 0;
+    }
+
+    .svr-input {
+        flex: 1;
+        min-width: 160px;
+        padding: 0.45rem 0.65rem;
+        border: 1px solid var(--border);
+        border-radius: 0.4rem;
+        background: var(--background);
+        color: var(--foreground);
+        font-family: inherit;
+        font-size: 0.88rem;
+    }
+
+    .svr-input:disabled {
+        opacity: 0.4;
+    }
+
+    .svr-type-toggle {
+        display: flex;
+        gap: 0.75rem;
+        font-size: 0.8rem;
+        opacity: 0.85;
+        flex-shrink: 0;
+    }
+
+    .svr-type-toggle label {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .svr-response-empty {
+        opacity: 0.6;
+    }
+
+    .svr-response-block {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        background: var(--background);
+    }
+
+    .svr-response-status {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .svr-history-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 0.4rem;
+        margin-bottom: 0.4rem;
+        cursor: pointer;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+        background: transparent;
+        width: 100%;
+        text-align: left;
+        color: var(--foreground);
+    }
+
+    .svr-history-row:hover {
+        border-color: var(--accent);
+    }
+
+    .svr-history-row.active {
+        border-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+    }
+
+    .svr-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 50;
+    }
+
+    .svr-modal {
+        max-width: 480px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    .svr-field-label {
+        font-weight: 600;
+        margin-top: 0.9rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .svr-radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .svr-radio-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.88rem;
+        padding: 0.45rem 0.6rem;
+        border: 1px solid var(--border);
+        border-radius: 0.4rem;
+        cursor: pointer;
+    }
+
+    .svr-radio-option:hover {
+        border-color: var(--accent);
+    }
+
+    .svr-actual-badge {
+        display: inline-flex;
+        padding: 0.4rem 0.7rem;
+        border: 1px solid var(--border);
+        border-radius: 0.4rem;
+        background: var(--background);
+    }
+
+    .svr-feedback-confirmed {
+        color: #16a34a;
+    }
+
+    .svr-feedback-false-positive {
+        color: #dc2626;
+    }
+
+    .svr-feedback-duplicate {
+        color: #d97706;
+    }
+
+    .svr-report {
+        display: grid;
+        gap: 0.4rem;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+    }
+
+    .svr-report-row {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .svr-skills {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .svr-skill-ok {
+        color: #16a34a;
+    }
+
+    .svr-skill-missing {
+        color: #d97706;
+    }
+
+    .svr-missed {
+        margin-bottom: 1rem;
+    }
+
+    .svr-missed-item {
+        border: 1px solid var(--border);
+        border-radius: 0.4rem;
+        padding: 0.6rem 0.8rem;
+        margin-bottom: 0.4rem;
+        font-size: 0.85rem;
+    }
+
+    .svr-missed-reveal-btn {
+        background: none;
+        border: none;
+        color: var(--accent);
+        cursor: pointer;
+        font-size: 0.85rem;
+        text-decoration: underline;
+        padding: 0;
+    }
+
+    .svr-closing-line {
+        font-style: italic;
+        opacity: 0.85;
+    }
+</style>
+
+<script>
+    interface Payload {
+        includeName: boolean;
+        name: string;
+        includeEmail: boolean;
+        email: string;
+        includeAge: boolean;
+        age: string;
+        ageType: "number" | "string";
+    }
+
+    interface HistoryEntry {
+        index: number;
+        payload: Payload;
+        status: number;
+        body: Record<string, unknown>;
+        manifestedDefects: string[];
+        groundTruthStatus: number;
+    }
+
+    type DefectId =
+        | "string_age_accepted"
+        | "minimum_age_not_enforced"
+        | "missing_email_accepted"
+        | "invalid_email_accepted"
+        | "response_age_corrupted";
+
+    const DEFECTS: Record<DefectId, { category: string; skill: string; impact: number; desc: string }> = {
+        string_age_accepted: {
+            category: "Schema/type mismatch",
+            skill: "Type validation",
+            impact: 100,
+            desc: "age is accepted as a string (e.g. \"25\") instead of being rejected for the wrong type.",
+        },
+        minimum_age_not_enforced: {
+            category: "Boundary validation failure",
+            skill: "Boundary testing",
+            impact: 100,
+            desc: "age values below 18 (e.g. 17) are accepted instead of rejected.",
+        },
+        missing_email_accepted: {
+            category: "Missing validation",
+            skill: "Input validation",
+            impact: 100,
+            desc: "requests with no email field at all are accepted instead of rejected.",
+        },
+        invalid_email_accepted: {
+            category: "Missing validation",
+            skill: "Input validation",
+            impact: 100,
+            desc: "malformed email values (e.g. \"hello\") are accepted instead of rejected.",
+        },
+        response_age_corrupted: {
+            category: "Response contract violation",
+            skill: "Response validation",
+            impact: 150,
+            desc: "on success, the returned age doesn't match what was submitted - the status code looks fine, but the data is wrong.",
+        },
+    };
+
+    const CATEGORIES = [
+        "Schema/type mismatch",
+        "Boundary validation failure",
+        "Missing validation",
+        "Response contract violation",
+    ];
+
+    const SKILL_AREAS = ["Type validation", "Boundary testing", "Input validation", "Response validation"];
+
+    const TIME_BUDGET = 180;
+    const REQUEST_BUDGET = 15;
+
+    function isValidEmail(email: string): boolean {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function groundTruthStatus(payload: Payload, usedEmails: Set<string>): number {
+        if (!payload.includeName || !payload.name.trim()) return 400;
+        if (!payload.includeEmail) return 400;
+        if (!isValidEmail(payload.email)) return 400;
+        if (!payload.includeAge) return 400;
+        if (payload.ageType === "string") return 400;
+        const n = Number(payload.age);
+        if (!Number.isInteger(n)) return 400;
+        if (n < 18) return 400;
+        if (usedEmails.has(payload.email)) return 409;
+        return 201;
+    }
+
+    function initGame() {
+        const briefing = document.getElementById("svr-briefing");
+        const playArea = document.getElementById("svr-play");
+        const startBtn = document.getElementById("svr-start-btn");
+        const timerEl = document.getElementById("svr-timer");
+        const requestsLeftEl = document.getElementById("svr-requests-left");
+        const findingsCountEl = document.getElementById("svr-findings-count");
+        const scoreEl = document.getElementById("svr-score");
+
+        const includeName = document.getElementById("svr-include-name") as HTMLInputElement | null;
+        const nameInput = document.getElementById("svr-name") as HTMLInputElement | null;
+        const includeEmail = document.getElementById("svr-include-email") as HTMLInputElement | null;
+        const emailInput = document.getElementById("svr-email") as HTMLInputElement | null;
+        const includeAge = document.getElementById("svr-include-age") as HTMLInputElement | null;
+        const ageInput = document.getElementById("svr-age") as HTMLInputElement | null;
+        const sendBtn = document.getElementById("svr-send-btn") as HTMLButtonElement | null;
+
+        const responseContent = document.getElementById("svr-response-content");
+        const historyList = document.getElementById("svr-history-list");
+        const reportBtn = document.getElementById("svr-report-btn") as HTMLButtonElement | null;
+        const endBtn = document.getElementById("svr-end-btn");
+
+        const modalOverlay = document.getElementById("svr-modal-overlay");
+        const categoryOptions = document.getElementById("svr-category-options");
+        const evidenceSelect = document.getElementById("svr-evidence-select") as HTMLSelectElement | null;
+        const expectedSelect = document.getElementById("svr-expected-select") as HTMLSelectElement | null;
+        const actualDisplay = document.getElementById("svr-actual-display");
+        const cancelFindingBtn = document.getElementById("svr-cancel-finding-btn");
+        const submitFindingBtn = document.getElementById("svr-submit-finding-btn");
+
+        const feedback = document.getElementById("svr-feedback");
+        const feedbackTitle = document.getElementById("svr-feedback-title");
+        const feedbackBody = document.getElementById("svr-feedback-body");
+        const feedbackContinueBtn = document.getElementById("svr-feedback-continue-btn");
+
+        const resultCard = document.getElementById("svr-result");
+        const report = document.getElementById("svr-report");
+        const skillsEl = document.getElementById("svr-skills");
+        const missedEl = document.getElementById("svr-missed");
+        const retryBtn = document.getElementById("svr-retry-btn");
+
+        if (!briefing || !playArea || !startBtn || !timerEl || !requestsLeftEl || !findingsCountEl || !scoreEl ||
+            !includeName || !nameInput || !includeEmail || !emailInput || !includeAge || !ageInput || !sendBtn ||
+            !responseContent || !historyList || !reportBtn || !endBtn ||
+            !modalOverlay || !categoryOptions || !evidenceSelect || !expectedSelect || !actualDisplay || !cancelFindingBtn || !submitFindingBtn ||
+            !feedback || !feedbackTitle || !feedbackBody || !feedbackContinueBtn ||
+            !resultCard || !report || !skillsEl || !missedEl || !retryBtn) {
+            return;
+        }
+
+        let timeRemaining = TIME_BUDGET;
+        let requestsRemaining = REQUEST_BUDGET;
+        let score = 0;
+        let falsePositives = 0;
+        let nextId = 421;
+        let history: HistoryEntry[] = [];
+        let usedEmails = new Set<string>();
+        let confirmed = new Set<DefectId>();
+        let timerHandle: ReturnType<typeof setInterval> | null = null;
+        let gameOver = false;
+
+        function formatTime(sec: number): string {
+            const m = Math.floor(sec / 60).toString().padStart(2, "0");
+            const s = (sec % 60).toString().padStart(2, "0");
+            return `${m}:${s}`;
+        }
+
+        function updateStatusBar() {
+            timerEl.textContent = formatTime(timeRemaining);
+            requestsLeftEl.textContent = `Requests: ${requestsRemaining}`;
+            findingsCountEl.textContent = `Findings: ${confirmed.size}`;
+            scoreEl.textContent = `Score: ${score}`;
+        }
+
+        function start() {
+            timeRemaining = TIME_BUDGET;
+            requestsRemaining = REQUEST_BUDGET;
+            score = 0;
+            falsePositives = 0;
+            nextId = 421;
+            history = [];
+            usedEmails = new Set();
+            confirmed = new Set();
+            gameOver = false;
+
+            briefing.hidden = true;
+            resultCard.hidden = true;
+            feedback.hidden = true;
+            playArea.hidden = false;
+            reportBtn.disabled = true;
+            sendBtn.disabled = false;
+            responseContent.innerHTML = "Send a request to see the response here.";
+            responseContent.className = "body-sm svr-response-empty";
+            historyList.innerHTML = "No requests sent yet.";
+            historyList.className = "body-sm svr-response-empty";
+
+            updateStatusBar();
+
+            if (timerHandle) clearInterval(timerHandle);
+            timerHandle = setInterval(() => {
+                timeRemaining -= 1;
+                if (timeRemaining <= 0) {
+                    timeRemaining = 0;
+                    updateStatusBar();
+                    endGame();
+                    return;
+                }
+                updateStatusBar();
+            }, 1000);
+        }
+
+        function readPayload(): Payload {
+            const ageTypeInput = document.querySelector('input[name="svr-age-type"]:checked') as HTMLInputElement | null;
+            return {
+                includeName: includeName!.checked,
+                name: nameInput!.value,
+                includeEmail: includeEmail!.checked,
+                email: emailInput!.value,
+                includeAge: includeAge!.checked,
+                age: ageInput!.value,
+                ageType: (ageTypeInput?.value as "number" | "string") || "number",
+            };
+        }
+
+        function simulate(payload: Payload): { status: number; body: Record<string, unknown>; defects: string[] } {
+            if (!payload.includeName || !payload.name.trim()) {
+                return { status: 400, body: { error: "name is required" }, defects: [] };
+            }
+            if (!payload.includeEmail) {
+                return buildSuccess(payload, ["missing_email_accepted"]);
+            }
+            if (!isValidEmail(payload.email)) {
+                return buildSuccess(payload, ["invalid_email_accepted"]);
+            }
+            if (!payload.includeAge) {
+                return { status: 400, body: { error: "age is required" }, defects: [] };
+            }
+
+            const ageDefects: string[] = [];
+            if (payload.ageType === "string") {
+                ageDefects.push("string_age_accepted");
+            } else {
+                const n = Number(payload.age);
+                if (!Number.isInteger(n)) {
+                    return { status: 400, body: { error: "age must be an integer" }, defects: [] };
+                }
+                if (n < 18) ageDefects.push("minimum_age_not_enforced");
+            }
+
+            if (usedEmails.has(payload.email)) {
+                return { status: 409, body: { error: "email already registered" }, defects: [] };
+            }
+
+            return buildSuccess(payload, ageDefects);
+        }
+
+        function buildSuccess(payload: Payload, extraDefects: string[]) {
+            const id = nextId++;
+            if (payload.includeEmail && isValidEmail(payload.email)) usedEmails.add(payload.email);
+            const submittedAgeNum = Number(payload.age);
+            const responseAge = Number.isFinite(submittedAgeNum) && payload.age !== "" ? submittedAgeNum - 1 : payload.age;
+            return {
+                status: 201,
+                body: {
+                    id,
+                    name: payload.name,
+                    email: payload.includeEmail ? payload.email : undefined,
+                    age: responseAge,
+                },
+                defects: [...extraDefects, "response_age_corrupted"],
+            };
+        }
+
+        function renderResponse(entry: HistoryEntry) {
+            const statusClass = entry.status >= 400 ? "svr-feedback-false-positive" : "svr-feedback-confirmed";
+            responseContent.className = "";
+            responseContent.innerHTML = `
+                <div class="svr-response-status ${statusClass}">${entry.status} ${entry.status === 201 ? "Created" : entry.status === 400 ? "Bad Request" : entry.status === 409 ? "Conflict" : ""}</div>
+                <div class="body-xs" style="margin-bottom:0.5rem;opacity:0.7;">Content-Type: application/json</div>
+                <pre class="svr-response-block">${JSON.stringify(entry.body, null, 2).replace(/</g, "&lt;")}</pre>
+            `;
+        }
+
+        function renderHistory() {
+            if (history.length === 0) {
+                historyList.className = "body-sm svr-response-empty";
+                historyList.innerHTML = "No requests sent yet.";
+                return;
+            }
+            historyList.className = "";
+            historyList.innerHTML = "";
+            history.forEach((entry) => {
+                const row = document.createElement("button");
+                row.type = "button";
+                row.className = "svr-history-row";
+                row.innerHTML = `<span>#${String(entry.index).padStart(2, "0")} POST /users</span><span>${entry.status}</span>`;
+                row.addEventListener("click", () => {
+                    renderResponse(entry);
+                    Array.from(historyList.children).forEach((c) => c.classList.remove("active"));
+                    row.classList.add("active");
+                });
+                historyList.appendChild(row);
+            });
+        }
+
+        sendBtn.addEventListener("click", () => {
+            if (requestsRemaining <= 0 || gameOver) return;
+            const payload = readPayload();
+            const result = simulate(payload);
+            const gt = groundTruthStatus(payload, new Set(Array.from(usedEmails)));
+
+            requestsRemaining -= 1;
+            const entry: HistoryEntry = {
+                index: history.length + 1,
+                payload,
+                status: result.status,
+                body: result.body,
+                manifestedDefects: result.defects,
+                groundTruthStatus: gt,
+            };
+            history.push(entry);
+
+            renderResponse(entry);
+            renderHistory();
+            updateStatusBar();
+
+            reportBtn.disabled = false;
+            if (requestsRemaining <= 0) {
+                sendBtn.disabled = true;
+            }
+        });
+
+        [includeName, includeEmail, includeAge].forEach((cb, i) => {
+            const input = [nameInput, emailInput, ageInput][i]!;
+            cb!.addEventListener("change", () => {
+                input.disabled = !cb!.checked;
+            });
+        });
+
+        function openReportModal() {
+            categoryOptions.innerHTML = "";
+            CATEGORIES.forEach((cat, i) => {
+                const label = document.createElement("label");
+                label.className = "svr-radio-option";
+                label.innerHTML = `<input type="radio" name="svr-category" value="${cat}" ${i === 0 ? "checked" : ""} /> ${cat}`;
+                categoryOptions.appendChild(label);
+            });
+
+            evidenceSelect.innerHTML = "";
+            history.forEach((entry) => {
+                const opt = document.createElement("option");
+                opt.value = String(entry.index - 1);
+                opt.textContent = `Request #${String(entry.index).padStart(2, "0")} - ${entry.status}`;
+                evidenceSelect.appendChild(opt);
+            });
+
+            updateActualDisplay();
+            modalOverlay.hidden = false;
+        }
+
+        function updateActualDisplay() {
+            const idx = Number(evidenceSelect.value);
+            const entry = history[idx];
+            actualDisplay.textContent = entry ? String(entry.status) : "-";
+        }
+
+        evidenceSelect.addEventListener("change", updateActualDisplay);
+
+        reportBtn.addEventListener("click", openReportModal);
+        cancelFindingBtn.addEventListener("click", () => { modalOverlay.hidden = true; });
+
+        submitFindingBtn.addEventListener("click", () => {
+            const categoryInput = document.querySelector('input[name="svr-category"]:checked') as HTMLInputElement | null;
+            const category = categoryInput?.value || CATEGORIES[0];
+            const evidenceIdx = Number(evidenceSelect.value);
+            const expected = Number(expectedSelect.value);
+            const entry = history[evidenceIdx];
+
+            modalOverlay.hidden = true;
+            if (!entry) return;
+
+            const trueExpected = entry.groundTruthStatus;
+            const actual = entry.status;
+
+            let outcome: "confirmed" | "false_positive" | "duplicate" = "false_positive";
+            let matchedDefect: DefectId | null = null;
+
+            const candidate = entry.manifestedDefects.find((d) => DEFECTS[d as DefectId]?.category === category) as DefectId | undefined;
+            if (candidate === "response_age_corrupted") {
+                // This defect lives in the response body, not the status code - status is
+                // genuinely 201 either way, so the proof is "expected == actual == 201", not a mismatch.
+                if (expected === actual && actual === 201) {
+                    matchedDefect = candidate;
+                }
+            } else if (candidate && trueExpected !== actual && expected === trueExpected) {
+                matchedDefect = candidate;
+            }
+
+            if (matchedDefect) {
+                outcome = confirmed.has(matchedDefect) ? "duplicate" : "confirmed";
+            }
+
+            if (outcome === "confirmed" && matchedDefect) {
+                confirmed.add(matchedDefect);
+                score += DEFECTS[matchedDefect].impact;
+                feedbackTitle.textContent = "\u{1F3AF} Finding Confirmed";
+                feedbackTitle.className = "title-md svr-feedback-confirmed";
+                const proofLine = matchedDefect === "response_age_corrupted"
+                    ? `Status was <strong>201</strong> either way - the submitted value doesn't match what came back in the body. Evidence: Request #${entry.index}.`
+                    : `Expected <strong>${trueExpected}</strong>, got <strong>${actual}</strong>. Evidence: Request #${entry.index}.`;
+                feedbackBody.innerHTML = `<p>${DEFECTS[matchedDefect].desc}</p><p class="body-sm" style="margin-top:0.5rem;">${proofLine}</p><p class="body-sm" style="margin-top:0.5rem;">+${DEFECTS[matchedDefect].impact} points</p>`;
+            } else if (outcome === "duplicate" && matchedDefect) {
+                score -= 25;
+                feedbackTitle.textContent = "Duplicate Finding";
+                feedbackTitle.className = "title-md svr-feedback-duplicate";
+                feedbackBody.innerHTML = `<p>You've already reported this defect. Try a different angle on the contract.</p><p class="body-sm" style="margin-top:0.5rem;">-25 points</p>`;
+            } else {
+                falsePositives += 1;
+                score -= 50;
+                feedbackTitle.textContent = "⚠ False Positive";
+                feedbackTitle.className = "title-md svr-feedback-false-positive";
+                feedbackBody.innerHTML = `<p>The evidence doesn't demonstrate a violation of the contract the way you described it.</p><p class="body-sm" style="margin-top:0.5rem;">-50 points</p>`;
+            }
+
+            updateStatusBar();
+            playArea.hidden = true;
+            feedback.hidden = false;
+        });
+
+        feedbackContinueBtn.addEventListener("click", () => {
+            feedback.hidden = true;
+            playArea.hidden = false;
+        });
+
+        endBtn.addEventListener("click", endGame);
+
+        function endGame() {
+            if (gameOver) return;
+            gameOver = true;
+            if (timerHandle) clearInterval(timerHandle);
+            playArea.hidden = true;
+            feedback.hidden = true;
+            resultCard.hidden = false;
+
+            report.innerHTML = `
+                <div class="svr-report-row"><span>Score</span><span>${score}</span></div>
+                <div class="svr-report-row"><span>Findings</span><span>${confirmed.size} / 5</span></div>
+                <div class="svr-report-row"><span>False positives</span><span>${falsePositives}</span></div>
+                <div class="svr-report-row"><span>Requests used</span><span>${REQUEST_BUDGET - requestsRemaining} / ${REQUEST_BUDGET}</span></div>
+            `;
+
+            const confirmedSkills = new Set(Array.from(confirmed).map((d) => DEFECTS[d].skill));
+            skillsEl.innerHTML = SKILL_AREAS.map((skill) => {
+                const ok = confirmedSkills.has(skill);
+                return `<div class="${ok ? "svr-skill-ok" : "svr-skill-missing"}">${ok ? "✓" : "⚠"} ${skill}</div>`;
+            }).join("");
+
+            const missedDefects = (Object.keys(DEFECTS) as DefectId[]).filter((d) => !confirmed.has(d));
+            if (missedDefects.length === 0) {
+                missedEl.innerHTML = `<p class="body-sm">You found every defect in this contract.</p>`;
+            } else {
+                missedEl.innerHTML = `<p class="body-sm">You missed ${missedDefects.length} defect${missedDefects.length > 1 ? "s" : ""}.</p>` +
+                    missedDefects.map((d, i) => `<div class="svr-missed-item" id="svr-missed-${i}"><button type="button" class="svr-missed-reveal-btn" data-idx="${i}">Reveal missed defect ${i + 1}</button></div>`).join("");
+
+                missedEl.querySelectorAll(".svr-missed-reveal-btn").forEach((btn) => {
+                    btn.addEventListener("click", () => {
+                        const idx = Number((btn as HTMLButtonElement).dataset.idx);
+                        const defectId = missedDefects[idx];
+                        const container = document.getElementById(`svr-missed-${idx}`);
+                        if (container) container.innerHTML = `<strong>${DEFECTS[defectId].skill}:</strong> ${DEFECTS[defectId].desc}`;
+                    });
+                });
+            }
+        }
+
+        startBtn.addEventListener("click", start);
+        retryBtn.addEventListener("click", start);
+    }
+
+    document.addEventListener("astro:page-load", initGame);
+</script>

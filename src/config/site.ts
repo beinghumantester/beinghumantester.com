@@ -20,7 +20,7 @@ export const THEME_CONFIG: ThemeConfig = {
 export const SETTINGS: SettingsConfig = {
     showTagsInNavbar: true,
     showRSSInFooter: true,
-    addDevToolsInProduction: true,
+    addDevToolsInProduction: false,
 };
 
 const umami: UmamiAnalyticsConfig = {
@@ -30,7 +30,7 @@ const umami: UmamiAnalyticsConfig = {
 
 export const ANALYTICS: AnalyticsConfig = {
     // Google Analytics 4 Measurement ID (e.g., 'G-XXXXXXXXXX')
-    ga4Id: "",
+    ga4Id: "G-DMTYH00DMC",
     // Umami Analytics configuration
     umami: umami
 };
