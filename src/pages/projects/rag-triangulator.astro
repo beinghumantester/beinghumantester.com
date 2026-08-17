@@ -1,0 +1,786 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BackLink from "../../components/ui/BackLink.astro";
+---
+
+<BaseLayout
+    title="RAG Triangulator"
+    description="You're not chatting with an AI. You're investigating why one gave a confident, wrong answer. A deterministic RAG failure-investigation game - no LLM, no API keys, no backend."
+>
+    <BackLink href="/projects" label="projects" />
+
+    <header class="page-header">
+        <h1 class="page-title">&#129504; RAG Triangulator</h1>
+        <p class="page-subtitle">Something went wrong somewhere in the pipeline. Find where, and prove it.</p>
+    </header>
+
+    <div class="container-narrow rt-wrap">
+        <!-- Mission select -->
+        <div id="rt-mission-select">
+            <div id="rt-mission-list" class="rt-mission-list"></div>
+        </div>
+
+        <!-- Mission brief -->
+        <div id="rt-brief" class="rt-card" hidden>
+            <p class="body-sm rt-mission-index" id="rt-brief-index"></p>
+            <h2 class="title-lg" id="rt-brief-title"></h2>
+            <p class="body mt-2" id="rt-brief-text"></p>
+            <p class="body-sm rt-caveat" id="rt-brief-caveat"></p>
+            <div class="rt-actions">
+                <button type="button" class="btn" id="rt-back-to-missions-btn">Back to Missions</button>
+                <button type="button" class="btn" id="rt-start-btn">Start Investigation</button>
+            </div>
+        </div>
+
+        <!-- Workspace -->
+        <div id="rt-workspace" hidden>
+            <div class="rt-status-bar">
+                <span class="body-sm" id="rt-workspace-title"></span>
+                <span class="body-sm" id="rt-workspace-actions">Investigation actions: 0</span>
+            </div>
+
+            <div class="rt-columns">
+                <div class="rt-col">
+                    <div class="rt-card">
+                        <h3 class="title-md rt-step-heading"><span class="rt-step-num">01</span> Query</h3>
+                        <p class="body-sm" id="rt-query"></p>
+                    </div>
+                    <div class="rt-card" id="rt-config-card">
+                        <h3 class="title-md">&#9881; Configuration</h3>
+                        <div id="rt-config-controls"></div>
+                    </div>
+                </div>
+
+                <div class="rt-col">
+                    <div class="rt-card">
+                        <h3 class="title-md rt-step-heading"><span class="rt-step-num">02</span> Retrieved Context</h3>
+                        <div id="rt-retrieval-list"></div>
+                    </div>
+                </div>
+
+                <div class="rt-col">
+                    <div class="rt-card">
+                        <h3 class="title-md rt-step-heading"><span class="rt-step-num">03</span> AI Response</h3>
+                        <p class="body rt-response" id="rt-response"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rt-card">
+                <h3 class="title-md">Your Investigation</h3>
+                <div class="rt-investigation-grid">
+                    <div>
+                        <p class="body-sm rt-field-label" style="margin-top:0;">Investigation Evidence</p>
+                        <p class="body-sm" id="rt-evidence-count" style="opacity:0.7;">No evidence collected yet.</p>
+                        <div id="rt-evidence-strength" class="rt-strength-bar"></div>
+                        <div id="rt-evidence-list" class="rt-evidence-notebook"></div>
+                    </div>
+                    <div>
+                        <p class="body-sm rt-field-label" style="margin-top:0;">Where did the failure occur?</p>
+                        <div id="rt-layer-options" class="rt-radio-group"></div>
+                    </div>
+                </div>
+                <div class="rt-actions">
+                    <button type="button" class="btn" id="rt-submit-btn" disabled>Submit Investigation</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debrief -->
+        <div id="rt-debrief" class="rt-card" hidden>
+            <h2 class="title-md">Investigation Complete</h2>
+            <div class="rt-report" id="rt-report"></div>
+            <p class="body-sm rt-field-label">What Happened?</p>
+            <p class="body" id="rt-what-happened"></p>
+            <p class="body-sm rt-field-label">Tester Lesson</p>
+            <p class="body" id="rt-lesson"></p>
+            <div class="rt-actions">
+                <button type="button" class="btn" id="rt-retry-btn">Retry</button>
+                <button type="button" class="btn" id="rt-next-btn">Next Mission</button>
+            </div>
+        </div>
+    </div>
+</BaseLayout>
+
+<style is:global>
+    .rt-wrap {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .rt-card {
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        background: var(--surface);
+    }
+
+    .rt-mission-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1rem;
+    }
+
+    .rt-mission-card {
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        background: var(--surface);
+        cursor: pointer;
+        text-align: left;
+        color: var(--foreground);
+        font-family: inherit;
+        display: block;
+        width: 100%;
+    }
+
+    .rt-mission-card:hover {
+        border-color: var(--accent);
+    }
+
+    .rt-mission-badge {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        opacity: 0.75;
+        margin-bottom: 0.6rem;
+    }
+
+    .rt-mission-score {
+        margin-top: 0.6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+        opacity: 0.75;
+    }
+
+    .rt-mission-index {
+        opacity: 0.7;
+        margin-bottom: 0.3rem;
+    }
+
+    .rt-caveat {
+        margin-top: 0.85rem;
+        padding: 0.6rem 0.8rem;
+        border: 1px dashed var(--border);
+        border-radius: 0.4rem;
+        opacity: 0.85;
+    }
+
+    .rt-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.6rem;
+        margin-top: 1.25rem;
+    }
+
+    .rt-status-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.6rem 1rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .rt-columns {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+        align-items: start;
+    }
+
+    @media (max-width: 900px) {
+        .rt-columns {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 620px) {
+        .rt-columns {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .rt-col {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .rt-chunk-card {
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.75rem 0.85rem;
+        margin-bottom: 0.65rem;
+        font-size: 0.82rem;
+    }
+
+    .rt-chunk-card.rt-selected {
+        border-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+    }
+
+    .rt-chunk-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin: 0.4rem 0 0.55rem;
+    }
+
+    .rt-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        padding: 0.1rem 0.4rem;
+        border-radius: 0.25rem;
+        border: 1px solid var(--border);
+        opacity: 0.85;
+    }
+
+    .rt-badge.rt-outdated {
+        border-color: #dc2626;
+        color: #dc2626;
+    }
+
+    .rt-badge.rt-authority-high {
+        border-color: #16a34a;
+        color: #16a34a;
+    }
+
+    .rt-badge.rt-authority-medium {
+        border-color: #d97706;
+        color: #d97706;
+    }
+
+    .rt-badge.rt-authority-low {
+        border-color: #dc2626;
+        color: #dc2626;
+    }
+
+    .rt-badge.rt-in-context {
+        border-color: #16a34a;
+        color: #16a34a;
+    }
+
+    .rt-badge.rt-dropped {
+        border-color: #d97706;
+        color: #d97706;
+    }
+
+    .rt-chunk-text {
+        opacity: 0.85;
+        line-height: 1.5;
+        margin-bottom: 0.55rem;
+    }
+
+    .rt-response {
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.85rem 1rem;
+        background: var(--background);
+    }
+
+    .rt-step-heading {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+    }
+
+    .rt-step-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--accent);
+        opacity: 0.85;
+    }
+
+    .rt-investigation-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 700px) {
+        .rt-investigation-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .rt-strength-bar {
+        display: flex;
+        gap: 0.25rem;
+        margin: 0.5rem 0 0.85rem;
+    }
+
+    .rt-strength-bar span {
+        height: 6px;
+        flex: 1;
+        border-radius: 999px;
+        background: var(--border);
+    }
+
+    .rt-strength-bar span.rt-filled {
+        background: var(--accent);
+    }
+
+    .rt-evidence-notebook {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .rt-evidence-item {
+        display: flex;
+        gap: 0.6rem;
+        align-items: flex-start;
+        border: 1px solid var(--border);
+        border-radius: 0.4rem;
+        padding: 0.5rem 0.7rem;
+        font-size: 0.82rem;
+    }
+
+    .rt-evidence-item-num {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        color: var(--accent);
+        flex-shrink: 0;
+    }
+
+    .rt-evidence-item-reason {
+        opacity: 0.7;
+        font-size: 0.78rem;
+        margin-top: 0.15rem;
+    }
+
+    .rt-config-row {
+        margin-bottom: 0.85rem;
+    }
+
+    .rt-config-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .rt-config-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+    }
+
+    .rt-config-buttons {
+        display: flex;
+        gap: 0.4rem;
+    }
+
+    .rt-config-buttons button {
+        flex: 1;
+    }
+
+    .rt-config-buttons button.rt-active {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .rt-checkbox-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .rt-radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .rt-radio-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.88rem;
+        padding: 0.5rem 0.7rem;
+        border: 1px solid var(--border);
+        border-radius: 0.4rem;
+        cursor: pointer;
+    }
+
+    .rt-radio-option:hover {
+        border-color: var(--accent);
+    }
+
+    .rt-report {
+        display: grid;
+        gap: 0.4rem;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+    }
+
+    .rt-report-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .rt-report-row .rt-ok {
+        color: #16a34a;
+    }
+
+    .rt-report-row .rt-bad {
+        color: #dc2626;
+    }
+
+    .rt-field-label {
+        font-weight: 600;
+        margin-top: 0.9rem;
+        margin-bottom: 0.35rem;
+    }
+</style>
+
+<script>
+    import { PlaygroundRuntime } from "../../lib/playground-runtime/runtime";
+    import { ragScenarios } from "../../lib/rag-triangulator/registry";
+    import type { RagConfigField, RagState, RagEvaluation, FailureLayer, DocumentChunk } from "../../lib/rag-triangulator/types";
+    import type { RagScenarioDefinition } from "../../lib/rag-triangulator/engine-factory";
+
+    const LAYER_LABELS: Record<FailureLayer, string> = {
+        query_transform: "Query Transformation",
+        retrieval: "Retrieval",
+        ranking: "Ranking",
+        context_packing: "Context Packing",
+        generation: "Generation",
+    };
+
+    function authorityLabel(rank: number): { text: string; cls: string } {
+        if (rank <= 1) return { text: "HIGH", cls: "rt-authority-high" };
+        if (rank === 2) return { text: "MEDIUM", cls: "rt-authority-medium" };
+        return { text: "LOW", cls: "rt-authority-low" };
+    }
+
+    function evidenceReason(chunk: DocumentChunk, retrieved: DocumentChunk[], activeContext: DocumentChunk[]): string {
+        const reasons: string[] = [];
+        const maxRelevance = Math.max(...retrieved.map((c) => c.retrieval.relevanceScore));
+        const minAuthorityRank = Math.min(...retrieved.map((c) => c.metadata.authorityRank));
+        const inContext = activeContext.some((c) => c.id === chunk.id);
+
+        if (chunk.metadata.status === "outdated") reasons.push("Outdated");
+        if (!inContext) reasons.push("Not in final context");
+        if (chunk.retrieval.relevanceScore === maxRelevance) reasons.push("Highest relevance");
+        if (chunk.metadata.authorityRank === minAuthorityRank) reasons.push("Highest authority");
+        return reasons.length > 0 ? reasons.join(" · ") : "Selected for review";
+    }
+
+    const CONFIG_LABELS: Record<RagConfigField, string> = {
+        topK: "Top-K",
+        filterOutdated: "Filter outdated documents",
+        contextBudget: "Context Budget",
+        preferAuthoritative: "Prefer authoritative sources",
+    };
+
+    interface Progress {
+        completedScenarios: string[];
+        bestScores: Record<string, number>;
+    }
+
+    const STORAGE_KEY = "rag-triangulator-progress";
+
+    function loadProgress(): Progress {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return { completedScenarios: [], bestScores: {} };
+            return JSON.parse(raw);
+        } catch {
+            return { completedScenarios: [], bestScores: {} };
+        }
+    }
+
+    function saveProgress(progress: Progress): void {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+        } catch {
+            // localStorage unavailable - progress just won't persist
+        }
+    }
+
+    function initGame() {
+        const missionSelect = document.getElementById("rt-mission-select");
+        const missionList = document.getElementById("rt-mission-list");
+        const briefEl = document.getElementById("rt-brief");
+        const briefIndex = document.getElementById("rt-brief-index");
+        const briefTitle = document.getElementById("rt-brief-title");
+        const briefText = document.getElementById("rt-brief-text");
+        const briefCaveat = document.getElementById("rt-brief-caveat");
+        const backToMissionsBtn = document.getElementById("rt-back-to-missions-btn");
+        const startBtn = document.getElementById("rt-start-btn");
+
+        const workspaceEl = document.getElementById("rt-workspace");
+        const workspaceTitle = document.getElementById("rt-workspace-title");
+        const workspaceActions = document.getElementById("rt-workspace-actions");
+        const queryEl = document.getElementById("rt-query");
+        const configControls = document.getElementById("rt-config-controls");
+        const retrievalList = document.getElementById("rt-retrieval-list");
+        const responseEl = document.getElementById("rt-response");
+        const evidenceCount = document.getElementById("rt-evidence-count");
+        const evidenceStrength = document.getElementById("rt-evidence-strength");
+        const evidenceList = document.getElementById("rt-evidence-list");
+        const layerOptions = document.getElementById("rt-layer-options");
+        const submitBtn = document.getElementById("rt-submit-btn") as HTMLButtonElement | null;
+
+        const debriefEl = document.getElementById("rt-debrief");
+        const reportEl = document.getElementById("rt-report");
+        const whatHappenedEl = document.getElementById("rt-what-happened");
+        const lessonEl = document.getElementById("rt-lesson");
+        const retryBtn = document.getElementById("rt-retry-btn");
+        const nextBtn = document.getElementById("rt-next-btn");
+
+        if (!missionSelect || !missionList || !briefEl || !briefIndex || !briefTitle || !briefText || !briefCaveat ||
+            !backToMissionsBtn || !startBtn || !workspaceEl || !workspaceTitle || !workspaceActions || !queryEl ||
+            !configControls || !retrievalList || !responseEl || !evidenceCount || !evidenceStrength || !evidenceList || !layerOptions ||
+            !submitBtn || !debriefEl || !reportEl || !whatHappenedEl || !lessonEl || !retryBtn || !nextBtn) {
+            return;
+        }
+
+        let currentIndex = 0;
+        let runtime: PlaygroundRuntime<RagState, any, RagEvaluation> | null = null;
+        let progress = loadProgress();
+
+        function renderMissionList() {
+            missionList!.innerHTML = "";
+            ragScenarios.forEach((scenario, idx) => {
+                const def = scenario.definition;
+                const best = progress.bestScores[def.id];
+                const completed = progress.completedScenarios.includes(def.id);
+                const card = document.createElement("button");
+                card.type = "button";
+                card.className = "rt-mission-card";
+                card.innerHTML = `
+                    <span class="rt-mission-badge">${def.difficulty}</span>
+                    <div class="title-md">${String(idx + 1).padStart(2, "0")} &middot; ${def.title}</div>
+                    <p class="body-sm mt-2" style="opacity:0.8;">${def.missionBrief}</p>
+                    <div class="rt-mission-score">${completed ? "&#9989; Solved" : "Not yet solved"}${best !== undefined ? ` &middot; Best: ${best}/100` : ""}</div>
+                `;
+                card.addEventListener("click", () => openBrief(idx));
+                missionList!.appendChild(card);
+            });
+        }
+
+        function openBrief(index: number) {
+            currentIndex = index;
+            const def = ragScenarios[index].definition;
+            missionSelect!.hidden = true;
+            debriefEl!.hidden = true;
+            briefEl!.hidden = false;
+            briefIndex!.textContent = `Mission ${index + 1} / ${ragScenarios.length}`;
+            briefTitle!.textContent = def.title;
+            briefText!.textContent = def.missionBrief;
+            briefCaveat!.textContent = `⚠ ${def.caveat}`;
+        }
+
+        backToMissionsBtn!.addEventListener("click", () => {
+            briefEl!.hidden = true;
+            missionSelect!.hidden = false;
+            renderMissionList();
+        });
+
+        function startInvestigation() {
+            const scenario = ragScenarios[currentIndex];
+            runtime = new PlaygroundRuntime(scenario.createEngine());
+            briefEl!.hidden = true;
+            debriefEl!.hidden = true;
+            workspaceEl!.hidden = false;
+            renderWorkspace(scenario.definition);
+        }
+
+        startBtn!.addEventListener("click", startInvestigation);
+
+        function renderConfigControls(def: RagScenarioDefinition, state: RagState) {
+            configControls!.innerHTML = "";
+            def.relevantConfig.forEach((field) => {
+                const row = document.createElement("div");
+                row.className = "rt-config-row";
+
+                if (field === "filterOutdated" || field === "preferAuthoritative") {
+                    row.innerHTML = `
+                        <label class="rt-checkbox-row">
+                            <input type="checkbox" data-config="${field}" ${state.config[field] ? "checked" : ""} />
+                            ${CONFIG_LABELS[field]}
+                        </label>
+                    `;
+                } else {
+                    const max = def.chunks.length;
+                    const current = state.config[field] as number;
+                    const buttons = Array.from({ length: max }, (_, i) => i + 1)
+                        .map((n) => `<button type="button" class="btn btn-sm ${n === current ? "rt-active" : ""}" data-config="${field}" data-value="${n}">${n}</button>`)
+                        .join("");
+                    row.innerHTML = `<div class="rt-config-label">${CONFIG_LABELS[field]}</div><div class="rt-config-buttons">${buttons}</div>`;
+                }
+                configControls!.appendChild(row);
+            });
+
+            configControls!.querySelectorAll<HTMLInputElement>('input[type="checkbox"][data-config]').forEach((el) => {
+                el.addEventListener("change", () => {
+                    const field = el.dataset.config as "filterOutdated" | "preferAuthoritative";
+                    dispatchAction(
+                        field === "filterOutdated"
+                            ? { type: "TOGGLE_OUTDATED_FILTER", enabled: el.checked }
+                            : { type: "TOGGLE_PREFER_AUTHORITATIVE", enabled: el.checked }
+                    );
+                });
+            });
+
+            configControls!.querySelectorAll<HTMLButtonElement>("button[data-config]").forEach((el) => {
+                el.addEventListener("click", () => {
+                    const field = el.dataset.config as "topK" | "contextBudget";
+                    const value = Number(el.dataset.value);
+                    dispatchAction(field === "topK" ? { type: "SET_TOP_K", value } : { type: "SET_CONTEXT_BUDGET", value });
+                });
+            });
+        }
+
+        function chunkCard(chunk: DocumentChunk, state: RagState): string {
+            const isPacked = state.activeContext.some((c) => c.id === chunk.id);
+            const isSelected = state.submittedEvidenceIds.includes(chunk.id);
+            const authority = authorityLabel(chunk.metadata.authorityRank);
+            return `
+                <div class="rt-chunk-card ${isSelected ? "rt-selected" : ""}">
+                    <div><strong>${chunk.sourceDoc}</strong></div>
+                    <div class="rt-chunk-meta">
+                        <span class="rt-badge">v${chunk.version}</span>
+                        <span class="rt-badge">${chunk.metadata.sourceType}</span>
+                        <span class="rt-badge">relevance ${chunk.retrieval.relevanceScore.toFixed(2)}</span>
+                        <span class="rt-badge ${authority.cls}">authority ${authority.text}</span>
+                        ${chunk.metadata.status === "outdated" ? `<span class="rt-badge rt-outdated">&#9888; OUTDATED (until ${chunk.metadata.effectiveTo})</span>` : ""}
+                        ${isPacked ? `<span class="rt-badge rt-in-context">&#10003; In Context</span>` : `<span class="rt-badge rt-dropped">Not Packed</span>`}
+                    </div>
+                    <p class="rt-chunk-text">${chunk.text}</p>
+                    <button type="button" class="btn btn-sm" data-evidence="${chunk.id}">${isSelected ? "Remove Evidence" : "Add as Evidence"}</button>
+                </div>
+            `;
+        }
+
+        function renderWorkspace(def: RagScenarioDefinition) {
+            if (!runtime) return;
+            const state = runtime.getState();
+
+            workspaceTitle!.textContent = def.title;
+            workspaceActions!.textContent = `Investigation actions: ${runtime.getHistory().length}`;
+            queryEl!.textContent = state.userQuery;
+            responseEl!.textContent = state.simulatedResponse;
+            evidenceCount!.textContent =
+                state.submittedEvidenceIds.length === 0
+                    ? "No evidence collected yet."
+                    : `${state.submittedEvidenceIds.length} artifact${state.submittedEvidenceIds.length === 1 ? "" : "s"} collected.`;
+
+            renderConfigControls(def, state);
+
+            retrievalList!.innerHTML = state.retrievedChunks.map((chunk) => chunkCard(chunk, state)).join("");
+            retrievalList!.querySelectorAll<HTMLButtonElement>("button[data-evidence]").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    const chunkId = btn.dataset.evidence!;
+                    const already = runtime!.getState().submittedEvidenceIds.includes(chunkId);
+                    dispatchAction(already ? { type: "REMOVE_EVIDENCE", chunkId } : { type: "SELECT_EVIDENCE", chunkId });
+                });
+            });
+
+            evidenceList!.innerHTML = state.submittedEvidenceIds
+                .map((id, idx) => {
+                    const chunk = def.chunks.find((c) => c.id === id);
+                    if (!chunk) return "";
+                    const reason = evidenceReason(chunk, state.retrievedChunks, state.activeContext);
+                    return `
+                        <div class="rt-evidence-item">
+                            <span class="rt-evidence-item-num">${String(idx + 1).padStart(2, "0")}</span>
+                            <div>
+                                <div>${chunk.sourceDoc}</div>
+                                <div class="rt-evidence-item-reason">${reason}</div>
+                            </div>
+                        </div>
+                    `;
+                })
+                .join("");
+
+            const strengthFilled = Math.min(state.submittedEvidenceIds.length, 3);
+            evidenceStrength!.innerHTML = Array.from({ length: 3 }, (_, i) => `<span class="${i < strengthFilled ? "rt-filled" : ""}"></span>`).join("");
+
+            layerOptions!.innerHTML = (Object.keys(LAYER_LABELS) as FailureLayer[])
+                .map(
+                    (layer) => `
+                    <label class="rt-radio-option">
+                        <input type="radio" name="rt-layer" value="${layer}" ${state.selectedFailureLayer === layer ? "checked" : ""} />
+                        ${LAYER_LABELS[layer]}
+                    </label>
+                `
+                )
+                .join("");
+            layerOptions!.querySelectorAll<HTMLInputElement>('input[name="rt-layer"]').forEach((el) => {
+                el.addEventListener("change", () => {
+                    dispatchAction({ type: "SELECT_FAILURE_LAYER", layer: el.value as FailureLayer });
+                });
+            });
+
+            submitBtn!.disabled = !(state.selectedFailureLayer && state.submittedEvidenceIds.length > 0);
+        }
+
+        function dispatchAction(action: any) {
+            if (!runtime) return;
+            runtime.dispatch(action);
+            renderWorkspace(ragScenarios[currentIndex].definition);
+        }
+
+        submitBtn!.addEventListener("click", () => {
+            if (!runtime) return;
+            const evaluation = runtime.dispatch({ type: "SUBMIT_INVESTIGATION" });
+            showDebrief(evaluation);
+        });
+
+        function showDebrief(evaluation: RagEvaluation) {
+            const def = ragScenarios[currentIndex].definition;
+            workspaceEl!.hidden = true;
+            debriefEl!.hidden = false;
+
+            const correct = evaluation.status === "correct";
+            reportEl!.innerHTML = `
+                <div class="rt-report-row"><span>Score</span><span>${evaluation.score} / ${evaluation.maxScore}</span></div>
+                <div class="rt-report-row"><span>Root Cause</span><span class="${evaluation.breakdown?.rootCause ? "rt-ok" : "rt-bad"}">${evaluation.breakdown?.rootCause ? "&#10003;" : "&#10007;"} ${LAYER_LABELS[def.correctLayer]} (${evaluation.breakdown?.rootCause}/50)</span></div>
+                <div class="rt-report-row"><span>Evidence</span><span class="${(evaluation.breakdown?.evidence ?? 0) > 0 ? "rt-ok" : "rt-bad"}">${evaluation.breakdown?.evidence}/30</span></div>
+                <div class="rt-report-row"><span>Efficiency</span><span>${evaluation.breakdown?.efficiency}/20</span></div>
+                <div class="rt-report-row"><span>Risk</span><span>${evaluation.feedback?.risk}</span></div>
+            `;
+            whatHappenedEl!.textContent = evaluation.feedback?.rootCause ?? "";
+            lessonEl!.textContent = evaluation.feedback?.testerLesson ?? "";
+
+            const best = progress.bestScores[def.id] ?? 0;
+            progress.bestScores[def.id] = Math.max(best, evaluation.score);
+            if (correct && !progress.completedScenarios.includes(def.id)) {
+                progress.completedScenarios.push(def.id);
+            }
+            saveProgress(progress);
+
+            nextBtn!.hidden = currentIndex >= ragScenarios.length - 1;
+        }
+
+        retryBtn!.addEventListener("click", startInvestigation);
+
+        nextBtn!.addEventListener("click", () => {
+            if (currentIndex < ragScenarios.length - 1) {
+                openBrief(currentIndex + 1);
+            }
+        });
+
+        renderMissionList();
+    }
+
+    document.addEventListener("astro:page-load", initGame);
+</script>

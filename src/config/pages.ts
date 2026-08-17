@@ -23,7 +23,7 @@ export const PAGES: PagesConfig = {
     },
     projects: {
         title: "Playground",
-        subtitle: "Experiments, side projects, and things I build outside of work.",
+        subtitle: "Observe. Form a hypothesis. Collect evidence. Identify the failure. A testing investigation playground, not a demo gallery.",
         isActive: true,
     },
     teaching: {
