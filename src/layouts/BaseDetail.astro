@@ -8,7 +8,7 @@ import { getDetailItem } from "../utils/adapters";
 import { SITE } from "../config";
 
 interface Props {
-    collection: "publications" | "talks" | "projects" | "posts" | "teaching" | "ai-in-testing";
+    collection: "publications" | "talks" | "projects" | "posts" | "teaching" | "ai-in-testing" | "twil";
     id: string;
 }
 
@@ -25,17 +25,18 @@ if (detail.date) meta.push({ label: "Date", value: detail.date, icon: "Calendar"
 if (detail.authors) meta.push({ label: "Author", value: detail.authors, icon: "User" });
 if (detail.extraInput) {
     const icon = "Institution";
-    const label = collection === "publications" ? "Journal" : collection === "talks" ? "Event" : collection === "teaching" ? "Institution" : collection === "ai-in-testing" ? "Source" : "Info";
+    const label = collection === "publications" ? "Journal" : collection === "talks" ? "Event" : collection === "teaching" ? "Institution" : collection === "ai-in-testing" ? "Source" : collection === "twil" ? "Week" : "Info";
     meta.push({ label, value: detail.extraInput, icon });
 }
 
 const description = entry.data.description || detail.description || SITE.desc;
 const ogImage = entry.data.image || SITE.ogImage;
+const backLabel = collection === "twil" ? "TWIL" : collection === "ai-in-testing" ? "AI In Testing" : collection;
 ---
 
 <BaseLayout title={detail.title} description={description} ogImage={ogImage} ogType="article">
     <div class="flex justify-between items-center mb-4">
-        <BackLink href={detail.backHref} label={collection} />
+        <BackLink href={detail.backHref} label={backLabel} />
         {detail.externalUrl && (
             <a href={detail.externalUrl} target="_blank" rel="noopener noreferrer" class="link">
                 View external

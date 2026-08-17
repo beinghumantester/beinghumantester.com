@@ -15,7 +15,7 @@ export function getListingItem(entry: any, collection?: string): ListingItem {
         description: d.description,
         date: formatDate(d.date),
         authors: d.author,
-        extraInput: d.journal || d.event || d.institution,
+        extraInput: d.journal || d.event || d.institution || d.weekLabel,
         tags: d.tags || [],
         externalUrl: d.external_url,
         image: d.image,
