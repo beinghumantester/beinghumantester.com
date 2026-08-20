@@ -4,6 +4,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Timeline from "../../components/ui/Timeline.astro";
 import Icon from "../../components/ui/Icon.astro";
 import { PAGES } from "../../config";
+import resumeUrl from "../../assets/Ujjwal_Kumar_Singh_Resume.pdf?url";
 
 if (PAGES.cv.isActive === false) {
     return Astro.redirect("/404");
@@ -36,7 +37,7 @@ const {
     <header class="page-header">
         <div class="flex justify-between items-center gap-4 flex-wrap">
             <h1 class="page-title">{PAGES.cv.title}</h1>
-            <a href="/sample.pdf" download class="btn btn-sm" style="gap: 0.4rem;">
+            <a href={resumeUrl} download="Ujjwal_Kumar_Singh_Resume.pdf" class="btn btn-sm" style="gap: 0.4rem;">
                 <Icon name="Download" size={16} />
                 Download CV
             </a>
