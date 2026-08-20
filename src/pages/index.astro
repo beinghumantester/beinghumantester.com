@@ -29,3 +29,26 @@ const { Content: BioContent } = bioEntry
 		</div>
 	</div>
 </BaseLayout>
+
+<script is:inline>
+	(function () {
+		function scheduleAutoPopup() {
+			try {
+				if (sessionStorage.getItem("newsletterAutoShown") === "true") return;
+			} catch (e) {}
+
+			setTimeout(function () {
+				var trigger = document.querySelector("[data-eo-form-toggle-id]");
+				if (trigger) {
+					trigger.click();
+					try {
+						sessionStorage.setItem("newsletterAutoShown", "true");
+					} catch (e) {}
+				}
+			}, 5000);
+		}
+
+		document.addEventListener("astro:page-load", scheduleAutoPopup);
+	})();
+</script>
+

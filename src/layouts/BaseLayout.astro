@@ -39,6 +39,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site || SITE.website);
 const isHome = Astro.url.pathname === "/";
 const pageTitle = isHome ? SITE.title : `${SITE.title} : ${title}`;
 
+// Fixed at build time (same value on every page until the next `astro build`).
+// Used to reset the newsletter popup's 1-day frequency cookie on each new deploy.
+const BUILD_ID = String(Date.now());
+const NEWSLETTER_COOKIE_NAME = `eoForm_${NEWSLETTER_FORM_ID}`;
+
 const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
@@ -126,6 +131,25 @@ const jsonLd = {
         <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
         <ClientRouter />
+
+        <!--
+            Reset the newsletter popup's own 1-day "already shown" cookie whenever a
+            new build has been deployed, so the automatic popup gets a fresh chance
+            on every deploy instead of staying silently capped for 24 hours.
+        -->
+        <script is:inline define:vars={{ BUILD_ID, NEWSLETTER_COOKIE_NAME }}>
+            (function () {
+                try {
+                    var storedBuildId = localStorage.getItem("siteBuildId");
+                    if (storedBuildId !== BUILD_ID) {
+                        document.cookie = NEWSLETTER_COOKIE_NAME + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + window.location.hostname;
+                        localStorage.setItem("siteBuildId", BUILD_ID);
+                    }
+                } catch (e) {
+                    // localStorage/cookies unavailable - nothing to do
+                }
+            })();
+        </script>
 
         <!-- Newsletter popup (EmailOctopus) - loaded site-wide so the Subscribe nav item works from any page -->
         <script async is:inline src={NEWSLETTER_SCRIPT_SRC} data-form={NEWSLETTER_FORM_ID}></script>

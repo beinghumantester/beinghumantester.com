@@ -33,16 +33,15 @@ const currentPath = Astro.url.pathname;
             ))
         }
         <li>
-            <a
-                href="#"
-                role="button"
+            <button
+                type="button"
                 aria-haspopup="dialog"
-                class="nav-link inactive"
+                class="nav-link inactive nav-link-btn"
                 data-eo-form-toggle-id={NEWSLETTER_FORM_ID}
             >
                 Subscribe
                 <span class="nav-link-line" />
-            </a>
+            </button>
         </li>
     </ul>
 </nav>

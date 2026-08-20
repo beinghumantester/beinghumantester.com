@@ -506,6 +506,15 @@ a:hover,
     color: var(--accent);
 }
 
+.nav-link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-family: inherit;
+    cursor: pointer;
+}
+
 .nav-link.inactive {
     opacity: 0.75;
 }
