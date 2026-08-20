@@ -1,5 +1,5 @@
 ---
-import { NAV_LINKS, PAGES } from "../../config";
+import { NAV_LINKS, PAGES, NEWSLETTER_FORM_ID } from "../../config";
 
 const currentPath = Astro.url.pathname;
 ---
@@ -32,5 +32,17 @@ const currentPath = Astro.url.pathname;
                 </li>
             ))
         }
+        <li>
+            <a
+                href="#"
+                role="button"
+                aria-haspopup="dialog"
+                class="nav-link inactive"
+                data-eo-form-toggle-id={NEWSLETTER_FORM_ID}
+            >
+                Subscribe
+                <span class="nav-link-line" />
+            </a>
+        </li>
     </ul>
 </nav>

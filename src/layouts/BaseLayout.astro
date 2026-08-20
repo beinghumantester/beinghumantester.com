@@ -1,5 +1,5 @@
 ---
-import { SITE, THEME_CONFIG, ANALYTICS, THEMES } from "../config";
+import { SITE, THEME_CONFIG, ANALYTICS, THEMES, NEWSLETTER_FORM_ID, NEWSLETTER_SCRIPT_SRC } from "../config";
 import { ClientRouter } from "astro:transitions";
 import LeftSidebar from "../components/layout/LeftSidebar.astro";
 import RightMain from "../components/layout/RightMain.astro";
@@ -126,6 +126,9 @@ const jsonLd = {
         <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
         <ClientRouter />
+
+        <!-- Newsletter popup (EmailOctopus) - loaded site-wide so the Subscribe nav item works from any page -->
+        <script async is:inline src={NEWSLETTER_SCRIPT_SRC} data-form={NEWSLETTER_FORM_ID}></script>
 
         {
             (ANALYTICS.umami.websiteId || ANALYTICS.ga4Id) && (
