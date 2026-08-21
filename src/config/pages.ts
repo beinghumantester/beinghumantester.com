@@ -48,7 +48,7 @@ export const PAGES: PagesConfig = {
     },
     twil: {
         title: "TWIL",
-        subtitle: "This Week in Learning. Wins, misses, and what I actually did with the week.",
+        subtitle: " ",
         isActive: true,
     },
 };
