@@ -130,7 +130,7 @@ const aiInTesting = defineCollection({
 });
 
 const twil = defineCollection({
-    loader: glob({ pattern: "**/*.md", base: "./src/content/twil" }),
+    loader: glob({ pattern: ["**/*.md", "!**/_*.md"], base: "./src/content/twil" }),
     schema: z.object({
         title: z.string(),
         weekLabel: z.string(),
