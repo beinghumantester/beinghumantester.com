@@ -7,7 +7,6 @@ export const SITE: SiteConfig = {
     title: "Being Human Tester",
     ogImage: "images/ujjwal.jpeg",
     postPerPage: 5,
-    favicon: "/favicon.svg",
     lang: "en",
 };
 
