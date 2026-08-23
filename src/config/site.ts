@@ -5,7 +5,7 @@ export const SITE: SiteConfig = {
     author: "Ujjwal Kumar Singh",
     desc: "Portfolio of Ujjwal Kumar Singh - Software Development Engineer in Test (SDET), Ministry of Testing Ambassador, exploring quality beyond tools.",
     title: "Being Human Tester",
-    ogImage: "images/ujjwal.jpeg",
+    ogImage: "images/ujjwal-photo.jpeg",
     postPerPage: 5,
     lang: "en",
 };
