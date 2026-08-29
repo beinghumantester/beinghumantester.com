@@ -1,5 +1,5 @@
 ---
-import { SITE, SOCIALS, SOCIAL_ICONS } from "../../config";
+import { SITE, SOCIALS, SOCIAL_ICONS, CALENDLY_URL } from "../../config";
 import { getCollection } from "astro:content";
 import Icon from "../ui/Icon.astro";
 import { Image } from 'astro:assets';
@@ -48,6 +48,15 @@ const bio = bioCollection[0]?.data;
                     </a>
                 ))}
             </div>
+            <a
+                href={CALENDLY_URL}
+                target="_blank"
+                rel="noreferrer"
+                class="btn btn-sm gap-1 mt-3"
+            >
+                <Icon name="Calendar" size={16} />
+                Book a call
+            </a>
         </div>
     </div>
 </aside>

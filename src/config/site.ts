@@ -22,6 +22,8 @@ export const SETTINGS: SettingsConfig = {
     addDevToolsInProduction: false,
 };
 
+export const CALENDLY_URL = "https://calendly.com/beinghumantester/30min";
+
 const umami: UmamiAnalyticsConfig = {
     websiteId: "", // e.g., 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
     src: "https://cloud.umami.is/script.js", // Default Umami cloud script URL
