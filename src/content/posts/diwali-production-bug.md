@@ -10,7 +10,7 @@ tags:
 
 # An Uninvited Guest in the Diwali Party
 
-## Why Updating with a Condition Is Important
+## Why Testing With Truth Table Is Important
 
 It was a usual evening, and in just a couple of hours the Diwali party was about to begin. Excitement was in the air and everyone was looking forward to creating some memorable moments. Some people were dressed in ethnic wear while others were in casual clothes, but the shared excitement and team spirit were clear.
 
