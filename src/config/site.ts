@@ -18,7 +18,7 @@ export const THEME_CONFIG: ThemeConfig = {
 
 export const SETTINGS: SettingsConfig = {
     showTagsInNavbar: true,
-    showRSSInFooter: true,
+    showRSSInFooter: false,
     addDevToolsInProduction: false,
 };
 

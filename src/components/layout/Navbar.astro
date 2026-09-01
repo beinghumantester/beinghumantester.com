@@ -1,36 +1,81 @@
 ---
-import { NAV_LINKS, PAGES, NEWSLETTER_FORM_ID } from "../../config";
+import { NAV_LINKS, PAGES, NEWSLETTER_FORM_ID, THEME_CONFIG } from "../../config";
+import Icon from "../ui/Icon.astro";
 
 const currentPath = Astro.url.pathname;
+const showThemeToggle = THEME_CONFIG.lightAndDark;
+
+const isLinkActive = (href: string) =>
+    currentPath === href || (href !== "/" && currentPath.startsWith(href));
+
+const visibleLinks = NAV_LINKS.filter((link) => {
+    const isHome = link.href === "/";
+    const pageKey = isHome ? "home" : link.href.split("/").filter(Boolean)[0];
+    const pageConfig = (PAGES as any)[pageKey];
+    return link.isActive !== false && pageConfig?.active !== false;
+});
 ---
 
 <nav class="navbar">
-    <ul class="nav-links">
+    <button
+        type="button"
+        id="nav-toggle"
+        class="nav-toggle"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+        aria-controls="primary-nav"
+    >
+        <Icon name="Menu" size={22} class="nav-toggle-icon-open" />
+        <Icon name="X" size={22} class="nav-toggle-icon-close" />
+    </button>
+
+    <ul class="nav-links" id="primary-nav">
         {
-            NAV_LINKS.filter((link) => {
-                const isHome = link.href === "/";
-                const pageKey = isHome
-                    ? "home"
-                    : link.href.split("/").filter(Boolean)[0];
-                const pageConfig = (PAGES as any)[pageKey];
-                return link.isActive !== false && pageConfig?.active !== false;
-            }).map((link) => (
-                <li>
-                    <a
-                        href={link.href}
-                        class={`nav-link ${
-                            currentPath === link.href ||
-                            (link.href !== "/" &&
-                                currentPath.startsWith(link.href))
-                                ? "active"
-                                : "inactive"
-                        }`}
-                    >
-                        {link.label}
-                        <span class="nav-link-line" />
-                    </a>
-                </li>
-            ))
+            visibleLinks.map((link) =>
+                link.children?.length ? (
+                    <li class="nav-item-dropdown">
+                        <details class="nav-dropdown">
+                            <summary
+                                class={`nav-link nav-dropdown-trigger ${
+                                    link.children.some((c) => isLinkActive(c.href))
+                                        ? "active"
+                                        : "inactive"
+                                }`}
+                            >
+                                {link.label}
+                                <Icon name="ChevronDown" size={14} class="nav-dropdown-caret" />
+                                <span class="nav-link-line" />
+                            </summary>
+                            <ul class="nav-dropdown-menu">
+                                {link.children.map((child) => (
+                                    <li>
+                                        <a
+                                            href={child.href}
+                                            class={`nav-dropdown-link ${
+                                                isLinkActive(child.href) ? "active" : ""
+                                            }`}
+                                        >
+                                            {child.label}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </details>
+                    </li>
+                ) : (
+                    <li>
+                        <a
+                            href={link.href}
+                            class={`nav-link ${
+                                isLinkActive(link.href) ? "active" : "inactive"
+                            }`}
+                        >
+                            {link.label}
+                            <span class="nav-link-line" />
+                        </a>
+                    </li>
+                ),
+            )
         }
         <li>
             <button
@@ -44,4 +89,39 @@ const currentPath = Astro.url.pathname;
             </button>
         </li>
     </ul>
+
+    {
+        showThemeToggle && (
+            <button id="theme-toggle" aria-label="Toggle Dark Mode" class="btn-icon nav-theme-toggle">
+                <Icon name="Sun" size={16} class="hidden dark:block" />
+                <Icon name="Moon" size={16} class="block dark:hidden" />
+            </button>
+        )
+    }
 </nav>
+
+<script>
+    function initNavToggle() {
+        const toggle = document.getElementById("nav-toggle");
+        const nav = document.getElementById("primary-nav");
+        if (!toggle || !nav) return;
+
+        const closeNav = () => {
+            nav.classList.remove("nav-links-open");
+            toggle.setAttribute("aria-expanded", "false");
+        };
+
+        toggle.addEventListener("click", () => {
+            const isOpen = nav.classList.toggle("nav-links-open");
+            toggle.setAttribute("aria-expanded", String(isOpen));
+        });
+
+        nav.querySelectorAll("a, button.nav-link-btn").forEach((el) => {
+            el.addEventListener("click", closeNav);
+        });
+
+        document.addEventListener("astro:before-swap", closeNav);
+    }
+
+    document.addEventListener("astro:page-load", initNavToggle);
+</script>

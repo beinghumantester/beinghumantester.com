@@ -25,12 +25,6 @@ const bio = bioCollection[0]?.data;
         )}
         <div class="flex flex-col items-center max-lg:items-start">
             {bio?.name && <h1 class="sidebar-name">{bio.name}</h1>}
-            {bio?.institution && (
-                <p class="sidebar-info">
-                    <Icon name="Institution" size={24} />
-                    {bio.institution}
-                </p>
-            )}
             {bio?.shortBio && (
                 <p class="sidebar-bio mt-2 max-md:hidden">{bio.shortBio}</p>
             )}

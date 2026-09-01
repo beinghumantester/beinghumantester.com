@@ -1,9 +1,9 @@
 ---
-import { THEME_CONFIG } from "../../config";
+import { SETTINGS } from "../../config";
 import Icon from "../ui/Icon.astro";
 
 const currentYear = new Date().getFullYear();
-const showToggle = THEME_CONFIG.lightAndDark;
+const showRSS = SETTINGS.showRSSInFooter;
 ---
 
 <footer class="footer">
@@ -12,26 +12,18 @@ const showToggle = THEME_CONFIG.lightAndDark;
     </div>
     <div class="flex items-center gap-4">
         <span class="body-xs hidden sm:inline-block">Crafted with curiosity and testing mindset</span>
-        <a
-            href="/rss.xml"
-            aria-label="RSS Feed"
-            title="RSS Feed"
-            target="_blank"
-            rel="noreferrer"
-            class="btn-icon"
-        >
-            <Icon name="RSS" size={16} />
-        </a>
         {
-            showToggle && (
-                <button
-                    id="theme-toggle"
-                    aria-label="Toggle Dark Mode"
+            showRSS && (
+                <a
+                    href="/rss.xml"
+                    aria-label="RSS Feed"
+                    title="RSS Feed"
+                    target="_blank"
+                    rel="noreferrer"
                     class="btn-icon"
                 >
-                    <Icon name="Sun" size={16} class="hidden dark:block" />
-                    <Icon name="Moon" size={16} class="block dark:hidden" />
-                </button>
+                    <Icon name="RSS" size={16} />
+                </a>
             )
         }
     </div>

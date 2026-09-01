@@ -468,11 +468,13 @@ a:hover,
 
 /* Navbar */
 .navbar {
-    padding: 1rem 1.5rem;
+    padding: 1.5rem 1.5rem 1.25rem;
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    gap: 1rem;
     background: var(--background);
+    border-bottom: 1px solid var(--border);
     transition: background 0.3s ease;
 }
 
@@ -489,8 +491,103 @@ a:hover,
     gap: 1.5rem;
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 0 auto 0 0;
     flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Hamburger toggle (compact viewports only) */
+.nav-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 0.25rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--foreground);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.nav-toggle-icon-close {
+    display: none;
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-icon-open {
+    display: none;
+}
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-icon-close {
+    display: block;
+}
+
+.nav-theme-toggle {
+    flex-shrink: 0;
+}
+
+/* Nav dropdown (e.g. "Writing") */
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-dropdown-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    cursor: pointer;
+}
+
+.nav-dropdown-trigger::-webkit-details-marker {
+    display: none;
+}
+
+.nav-dropdown-caret {
+    transition: transform 0.2s ease;
+}
+
+.nav-dropdown[open] .nav-dropdown-caret {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: 0;
+    min-width: 160px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 20;
+}
+
+.nav-dropdown-link {
+    display: block;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.25rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--foreground);
+    opacity: 0.85;
+    white-space: nowrap;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-dropdown-link:hover,
+.nav-dropdown-link.active {
+    opacity: 1;
+    background: var(--background);
+    color: var(--accent);
 }
 
 .nav-link {
@@ -545,7 +642,7 @@ a:hover,
 }
 
 .main-body {
-    padding: 1.5rem 2rem 2rem;
+    padding: 2rem 2rem 2rem;
     flex: 1;
 }
 
@@ -924,36 +1021,94 @@ a:hover,
         height: auto;
         position: relative;
         border-right: none;
-        padding: 1rem;
+        padding: 1.5rem 1rem 1rem;
         flex-direction: row;
         flex-wrap: wrap;
         gap: 0.75rem;
     }
 
     .sidebar-avatar {
-        width: 112px;
-        height: 112px;
+        width: 128px;
+        height: 128px;
     }
 
     .main-body {
-        padding: 1rem 1.5rem;
+        padding: 1.5rem 1.5rem 1rem;
     }
 
     .main-content {
         width: 100%;
         flex: none;
     }
+
+    /* Hamburger nav */
+    .nav-toggle {
+        display: flex;
+    }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+        width: 100%;
+        margin: 0;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        padding: 0.75rem 1.5rem 1rem;
+        background: var(--background);
+        border-bottom: 1px solid var(--border);
+        z-index: 15;
+    }
+
+    .nav-links.nav-links-open {
+        display: flex;
+    }
+
+    .nav-links li {
+        width: 100%;
+    }
+
+    .nav-link {
+        display: block;
+        padding: 0.5rem 0;
+    }
+
+    .nav-dropdown-trigger {
+        padding: 0.5rem 0;
+    }
+
+    .nav-dropdown-menu {
+        position: static;
+        border: none;
+        box-shadow: none;
+        background: none;
+        padding: 0 0 0 1rem;
+        margin-top: 0.25rem;
+    }
+
+    .navbar {
+        position: relative;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .nav-theme-toggle {
+        margin-left: auto;
+    }
 }
 
 @media (max-width: 768px) {
     .sidebar {
-        padding: 0.75rem 1rem;
+        padding: 1.25rem 1rem 0.75rem;
         gap: 0.5rem;
     }
 
     .sidebar-avatar {
-        width: 80px;
-        height: 80px;
+        width: 100px;
+        height: 100px;
     }
 
     .sidebar-name {
@@ -965,7 +1120,7 @@ a:hover,
     }
 
     .main-body {
-        padding: 0.75rem 1rem;
+        padding: 1.25rem 1rem 0.75rem;
     }
 
     .nav-links {
