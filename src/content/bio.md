@@ -1,7 +1,9 @@
 ---
 name: "Ujjwal Kumar Singh"
 avatar: "images/1750298637231.jpg"
-shortBio: "Software tester and quality advocate with 4+ years of experience in SDET. Ministry of Testing Ambassador exploring quality beyond tools."
+tags:
+  - "SDET, Skeps"
+  - "Ambassador, MoT"
 institution: "Skeps, Gurgaon"
 ---
 

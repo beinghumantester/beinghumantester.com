@@ -25,8 +25,12 @@ const bio = bioCollection[0]?.data;
         )}
         <div class="flex flex-col items-center max-lg:items-start">
             {bio?.name && <h1 class="sidebar-name">{bio.name}</h1>}
-            {bio?.shortBio && (
-                <p class="sidebar-bio mt-2 max-md:hidden">{bio.shortBio}</p>
+            {bio?.tags && bio.tags.length > 0 && (
+                <div class="flex flex-col items-center max-lg:items-start gap-1 mt-1">
+                    {bio.tags.map((tag) => (
+                        <p class="sidebar-info">{tag}</p>
+                    ))}
+                </div>
             )}
             <div class="flex gap-1 flex-wrap items-center justify-center max-lg:justify-start mt-3">
                 {activeSocials.map((social) => (

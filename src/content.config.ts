@@ -58,7 +58,7 @@ const bio = defineCollection({
     schema: z.object({
         name: z.string(),
         avatar: z.string(),
-        shortBio: z.string().optional(),
+        tags: z.array(z.string()).optional(),
         institution: z.string().optional(),
     }),
 });

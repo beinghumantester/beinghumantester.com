@@ -1,7 +1,7 @@
 export interface Bio {
     name: string;
     avatar: string;
-    shortBio?: string;
+    tags?: string[];
     institution?: string;
 }
 
