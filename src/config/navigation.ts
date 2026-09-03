@@ -13,7 +13,14 @@ export const NAV_LINKS: NavLink[] = [
     },
     { href: "/talks", label: "Speaking", isActive: true },
     { href: "/projects", label: "Playground", isActive: true },
-    { href: "/ai-in-testing", label: "AI In Testing", isActive: true },
+    {
+        href: "/ai-in-testing",
+        label: "Learning",
+        isActive: true,
+        children: [
+            { href: "/ai-in-testing", label: "AI In Testing", isActive: true },
+            { href: "/til", label: "TIL", isActive: true },
+        ],
+    },
     { href: "/cv", label: "CV", isActive: true },
-    { href: "/twil", label: "TWIL", isActive: true },
 ];

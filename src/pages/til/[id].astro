@@ -3,13 +3,13 @@ import { getCollection } from "astro:content";
 import BaseDetail from "../../layouts/BaseDetail.astro";
 import { PAGES } from "../../config";
 
-if (PAGES.twil.isActive === false) {
+if (PAGES.til.isActive === false) {
     return Astro.redirect("/404");
 }
 
 export async function getStaticPaths() {
-    if (PAGES.twil.isActive === false) return [];
-    const entries = await getCollection("twil");
+    if (PAGES.til.isActive === false) return [];
+    const entries = await getCollection("til");
     return entries.map((entry: any) => ({
         params: { id: entry.id },
         props: { entry },
@@ -19,4 +19,4 @@ export async function getStaticPaths() {
 const { id } = Astro.params;
 ---
 
-<BaseDetail collection="twil" id={id} />
+<BaseDetail collection="til" id={id} />

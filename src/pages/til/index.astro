@@ -2,13 +2,13 @@
 import BaseListing from "../../layouts/BaseListing.astro";
 import { PAGES } from "../../config";
 
-if (PAGES.twil.isActive === false) {
+if (PAGES.til.isActive === false) {
     return Astro.redirect("/404");
 }
 ---
 
 <BaseListing
-    collection="twil"
-    title={PAGES.twil.title}
-    subtitle={PAGES.twil.subtitle}
+    collection="til"
+    title={PAGES.til.title}
+    subtitle={PAGES.til.subtitle}
 />

@@ -46,9 +46,9 @@ export const PAGES: PagesConfig = {
         subtitle: "Thoughts, experiments, and resources on AI's role in software testing.",
         isActive: true,
     },
-    twil: {
-        title: "TWIL",
-        subtitle: " ",
+    til: {
+        title: "TIL",
+        subtitle: "Today I Learned — a running log of small, daily lessons.",
         isActive: true,
     },
 };

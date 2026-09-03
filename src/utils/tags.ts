@@ -7,9 +7,9 @@ export async function getAllTags() {
     const posts = await getCollection('posts');
     const teaching = await getCollection('teaching');
     const aiInTesting = await getCollection('ai-in-testing');
-    const twil = await getCollection('twil');
+    const til = await getCollection('til');
 
-    const allEntries = [...publications, ...talks, ...projects, ...posts, ...teaching, ...aiInTesting, ...twil];
+    const allEntries = [...publications, ...talks, ...projects, ...posts, ...teaching, ...aiInTesting, ...til];
     const tags: Record<string, number> = {};
 
     allEntries.forEach(entry => {
@@ -36,7 +36,7 @@ export async function getContentByTag(tag: string) {
     const posts = await getCollection('posts');
     const teaching = await getCollection('teaching');
     const aiInTesting = await getCollection('ai-in-testing');
-    const twil = await getCollection('twil');
+    const til = await getCollection('til');
 
     const filterFn = (entry: any) => {
         const entryTags = (entry.data as any).tags || [];
@@ -50,7 +50,7 @@ export async function getContentByTag(tag: string) {
         ...posts.filter(filterFn).map(e => ({ ...e, collection: 'posts' })),
         ...teaching.filter(filterFn).map(e => ({ ...e, collection: 'teaching' })),
         ...aiInTesting.filter(filterFn).map(e => ({ ...e, collection: 'ai-in-testing' })),
-        ...twil.filter(filterFn).map(e => ({ ...e, collection: 'twil' })),
+        ...til.filter(filterFn).map(e => ({ ...e, collection: 'til' })),
     ].sort((a, b) => {
         const dateA = new Date((a.data as any).date || 0);
         const dateB = new Date((b.data as any).date || 0);

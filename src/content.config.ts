@@ -129,13 +129,11 @@ const aiInTesting = defineCollection({
     }),
 });
 
-const twil = defineCollection({
-    loader: glob({ pattern: ["**/*.md", "!**/_*.md"], base: "./src/content/twil" }),
+const til = defineCollection({
+    loader: glob({ pattern: ["**/*.md", "!**/_*.md"], base: "./src/content/til" }),
     schema: z.object({
         title: z.string(),
-        weekLabel: z.string(),
-        dateRange: z.string(),
-        date: z.string().optional(),
+        date: z.string(),
         description: z.string().optional(),
         tags: z.array(z.string()).optional(),
     }),
@@ -150,5 +148,5 @@ export const collections = {
     'cv': cv,
     'teaching': teaching,
     'ai-in-testing': aiInTesting,
-    'twil': twil,
+    'til': til,
 };
