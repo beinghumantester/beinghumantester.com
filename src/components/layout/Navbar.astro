@@ -123,5 +123,32 @@ const visibleLinks = NAV_LINKS.filter((link) => {
         document.addEventListener("astro:before-swap", closeNav);
     }
 
+    function initNavDropdowns() {
+        const dropdowns = Array.from(document.querySelectorAll(".nav-dropdown"));
+        if (!dropdowns.length) return;
+
+        const closeAll = (except) => {
+            dropdowns.forEach((d) => {
+                if (d !== except) d.removeAttribute("open");
+            });
+        };
+
+        dropdowns.forEach((d) => {
+            d.addEventListener("toggle", () => {
+                if (d.open) closeAll(d);
+            });
+        });
+
+        document.addEventListener("click", (e) => {
+            const openDropdown = dropdowns.find((d) => d.open);
+            if (openDropdown && !openDropdown.contains(e.target)) {
+                openDropdown.removeAttribute("open");
+            }
+        });
+
+        document.addEventListener("astro:before-swap", () => closeAll());
+    }
+
     document.addEventListener("astro:page-load", initNavToggle);
+    document.addEventListener("astro:page-load", initNavDropdowns);
 </script>
