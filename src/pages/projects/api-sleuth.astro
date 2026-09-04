@@ -177,7 +177,7 @@ import BackLink from "../../components/ui/BackLink.astro";
 
     .option-btn {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         gap: 0.65rem;
         text-align: left;
         padding: 0.7rem 1rem;
@@ -204,12 +204,39 @@ import BackLink from "../../components/ui/BackLink.astro";
         flex-shrink: 0;
         width: 1.1rem;
         height: 1.1rem;
+        margin-top: 0.15rem;
         border: 1.5px solid var(--border);
         display: inline-flex;
         align-items: center;
         justify-content: center;
         font-size: 0.7rem;
         line-height: 1;
+    }
+
+    .option-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        flex: 1;
+    }
+
+    .option-why {
+        font-size: 0.8rem;
+        font-weight: 400;
+        line-height: 1.45;
+        opacity: 0.8;
+    }
+
+    .option-btn.correct .option-why {
+        color: #16a34a;
+    }
+
+    .option-btn.incorrect .option-why {
+        color: #dc2626;
+    }
+
+    .option-btn.missed .option-why {
+        color: #d97706;
     }
 
     .option-btn[data-type="single"] .option-marker {
@@ -299,6 +326,7 @@ import BackLink from "../../components/ui/BackLink.astro";
     interface CaseOption {
         id: string;
         label: string;
+        why: string;
     }
 
     type Category = "signal" | "investigate" | "break";
@@ -330,10 +358,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "What does this response actually confirm?",
             type: "single",
             options: [
-                { id: "a", label: "A new resource was created, and the Location header tells you exactly where it lives" },
-                { id: "b", label: "The request was accepted but not processed yet" },
-                { id: "c", label: "The server is still validating the payload" },
-                { id: "d", label: "Nothing - 201 alone never proves persistence" },
+                { id: "a", label: "A new resource was created, and the Location header tells you exactly where it lives", why: "Right - the resource now exists at a specific URL you can verify." },
+                { id: "b", label: "The request was accepted but not processed yet", why: "Wrong - 201 means the resource already exists now, not that it's pending; 202 Accepted would signal 'not processed yet.'" },
+                { id: "c", label: "The server is still validating the payload", why: "Wrong - validation happens before a 201 is returned; a still-validating request wouldn't get a Location header." },
+                { id: "d", label: "Nothing - 201 alone never proves persistence", why: "Wrong - 201 with a Location header is exactly the evidence of persistence; dismissing it ignores the header entirely." },
             ],
             correct: ["a"],
             explanation: "201 Created plus a Location header is the API telling you where the new resource lives - assert against that resource, not just the status code.",
@@ -346,10 +374,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "Beyond the status code, which of these are assertions worth making?",
             type: "multi",
             options: [
-                { id: "a", label: "GET /users/42 afterward returns 404" },
-                { id: "b", label: "The response body contains \"deleted\": true" },
-                { id: "c", label: "A second DELETE returns 204 or 404, not a 500" },
-                { id: "d", label: "The response arrives in under 50ms" },
+                { id: "a", label: "GET /users/42 afterward returns 404", why: "Right - a follow-up GET returning 404 is the real proof the resource is gone." },
+                { id: "b", label: "The response body contains \"deleted\": true", why: "Wrong - 204 No Content means there is no body by spec; asserting on body content here is a contradiction." },
+                { id: "c", label: "A second DELETE returns 204 or 404, not a 500", why: "Right - repeating the delete idempotently (204/404, not 500) confirms the operation is safe to retry." },
+                { id: "d", label: "The response arrives in under 50ms", why: "Wrong - response time isn't a correctness signal for this operation; it belongs in a performance test, not a functional one." },
             ],
             correct: ["a", "c"],
             explanation: "204 has no body by definition, so asserting on body content is meaningless. The real signal is state: the resource is actually gone, and repeating the delete doesn't crash.",
@@ -362,10 +390,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "What would you investigate first?",
             type: "single",
             options: [
-                { id: "a", label: "Whether the limit is scoped per-user, per-IP, or per-token" },
-                { id: "b", label: "Whether the server crashed" },
-                { id: "c", label: "Whether the payload was malformed" },
-                { id: "d", label: "Whether the auth token expired" },
+                { id: "a", label: "Whether the limit is scoped per-user, per-IP, or per-token", why: "Right - scope determines what your concurrency and load tests actually need to simulate." },
+                { id: "b", label: "Whether the server crashed", why: "Wrong - 429 is the server telling you it's healthy and enforcing a limit, the opposite of a crash." },
+                { id: "c", label: "Whether the payload was malformed", why: "Wrong - a malformed payload would return 400/422, not 429." },
+                { id: "d", label: "Whether the auth token expired", why: "Wrong - 429 is unrelated to authentication; an expired token returns 401." },
             ],
             correct: ["a"],
             explanation: "429 tells you that you're limited, not how the limit is scoped. Per-user vs per-IP vs global changes your entire concurrency test strategy.",
@@ -378,10 +406,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "What would you test next?",
             type: "single",
             options: [
-                { id: "a", label: "Send the exact same request again" },
-                { id: "b", label: "Check whether the payment was actually created despite the 409" },
-                { id: "c", label: "Switch the HTTP method to PUT" },
-                { id: "d", label: "Increase the client timeout" },
+                { id: "a", label: "Send the exact same request again", why: "Wrong - retrying blindly risks a duplicate charge if the first attempt actually succeeded server-side." },
+                { id: "b", label: "Check whether the payment was actually created despite the 409", why: "Right - a 409 tells you there was a conflict, not that nothing happened; the ledger is the source of truth." },
+                { id: "c", label: "Switch the HTTP method to PUT", why: "Wrong - switching methods doesn't test the actual failure; it just sends a different, invalid request." },
+                { id: "d", label: "Increase the client timeout", why: "Wrong - the response already came back as 409; timeout isn't the issue here." },
             ],
             correct: ["b"],
             explanation: "A 409 on a payment doesn't tell you whether money moved. The highest-risk question is always \"did the side effect happen anyway?\" - check the ledger before you trust the response.",
@@ -394,10 +422,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "Is this response necessarily correct?",
             type: "single",
             options: [
-                { id: "a", label: "Yes - 200 means success" },
-                { id: "b", label: "No - HTTP success doesn't mean business success; a null email may violate a required field" },
-                { id: "c", label: "No - it should have returned 204 instead" },
-                { id: "d", label: "No - GET requests can never return 200" },
+                { id: "a", label: "Yes - 200 means success", why: "Wrong - 200 confirms transport/HTTP success only, not that the payload satisfies business rules." },
+                { id: "b", label: "No - HTTP success doesn't mean business success; a null email may violate a required field", why: "Right - a null email may violate a 'required field' contract even though the HTTP layer is fine." },
+                { id: "c", label: "No - it should have returned 204 instead", why: "Wrong - 204 is for no-content responses; this response has a body, so 200 is the correct status." },
+                { id: "d", label: "No - GET requests can never return 200", why: "Wrong - GET requests return 200 constantly; that claim is simply false." },
             ],
             correct: ["b"],
             explanation: "\"assert response.status_code == 200\" would pass here. A tester who stops at the status code misses that a required field silently came back null.",
@@ -410,10 +438,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "Something feels off. What catches your attention?",
             type: "single",
             options: [
-                { id: "a", label: "The HTTP status code" },
-                { id: "b", label: "amount = 0 on a successfully created order" },
-                { id: "c", label: "The currency field" },
-                { id: "d", label: "Nothing suspicious" },
+                { id: "a", label: "The HTTP status code", why: "Wrong - the status code here is unremarkable; the problem is in the payload, not the transport layer." },
+                { id: "b", label: "amount = 0 on a successfully created order", why: "Right - a paid-looking order with amount = 0 is a business-logic bug no schema check would catch." },
+                { id: "c", label: "The currency field", why: "Wrong - INR is a valid, well-formed currency code; nothing is wrong with this field." },
+                { id: "d", label: "Nothing suspicious", why: "Wrong - something is suspicious: free orders are exactly the kind of bug that costs real money." },
             ],
             correct: ["b"],
             explanation: "A successfully created order with a zero amount is a business-logic red flag - one that no assertion on status code or schema shape alone would ever catch.",
@@ -426,10 +454,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "What would you investigate next?",
             type: "single",
             options: [
-                { id: "a", label: "Whether the same boundary can be bypassed via a different route, header, or ID (IDOR angle)" },
-                { id: "b", label: "Whether the token expired" },
-                { id: "c", label: "Whether the endpoint exists at all" },
-                { id: "d", label: "Whether the request needs a body" },
+                { id: "a", label: "Whether the same boundary can be bypassed via a different route, header, or ID (IDOR angle)", why: "Right - a clean 403 on one path doesn't prove the boundary holds everywhere; adjacent routes/params are the next attack surface." },
+                { id: "b", label: "Whether the token expired", why: "Wrong - the token is described as valid; expiry isn't the story here." },
+                { id: "c", label: "Whether the endpoint exists at all", why: "Wrong - a 403 (not 404) already tells you the endpoint exists and was recognized." },
+                { id: "d", label: "Whether the request needs a body", why: "Wrong - a GET request needing a body isn't a meaningful line of investigation for an authorization failure." },
             ],
             correct: ["a"],
             explanation: "One clean 403 is a good sign, but the interesting test is adjacent: can this same boundary be bypassed through a different path, parameter, or token scope?",
@@ -442,10 +470,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "Which assertions matter here?",
             type: "multi",
             options: [
-                { id: "a", label: "Item count on this page is 20, or fewer on the last page" },
-                { id: "b", label: "Items on page 2 don't duplicate items from page 1" },
-                { id: "c", label: "Every page must always return exactly 20 items, no exceptions" },
-                { id: "d", label: "X-Total-Count matches the real total in the system" },
+                { id: "a", label: "Item count on this page is 20, or fewer on the last page", why: "Right - a full page should return the limit's worth of items, with fewer only allowed on the last page." },
+                { id: "b", label: "Items on page 2 don't duplicate items from page 1", why: "Right - overlap between pages is a classic off-by-one pagination bug." },
+                { id: "c", label: "Every page must always return exactly 20 items, no exceptions", why: "Wrong - the last page legitimately returning fewer than the limit is correct behavior, not a bug to assert against." },
+                { id: "d", label: "X-Total-Count matches the real total in the system", why: "Right - a total count that doesn't match reality misleads every client doing pagination math." },
             ],
             correct: ["a", "b", "d"],
             explanation: "Pagination bugs live in the boundaries and the overlaps - the last page returning fewer items is correct behaviour, not a bug.",
@@ -458,10 +486,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "What would you check?",
             type: "single",
             options: [
-                { id: "a", label: "Nothing - two 200s means it's fine" },
-                { id: "b", label: "Whether the handler processed the event twice (e.g. duplicate charge or duplicate email)" },
-                { id: "c", label: "Whether the payload changed between calls" },
-                { id: "d", label: "Whether the response time increased on the second call" },
+                { id: "a", label: "Nothing - two 200s means it's fine", why: "Wrong - two 200s only prove the webhook was accepted twice, not that it was handled safely." },
+                { id: "b", label: "Whether the handler processed the event twice (e.g. duplicate charge or duplicate email)", why: "Right - idempotency is about the side effect, not the response; check for a duplicate charge or email." },
+                { id: "c", label: "Whether the payload changed between calls", why: "Wrong - the payload is stated as identical between calls, so that's not the variable at play." },
+                { id: "d", label: "Whether the response time increased on the second call", why: "Wrong - response time doesn't reveal anything about whether the handler double-processed the event." },
             ],
             correct: ["b"],
             explanation: "A duplicate 200 doesn't prove idempotency - you have to check the side effect, not just the response code.",
@@ -474,10 +502,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "Which assertions matter here?",
             type: "multi",
             options: [
-                { id: "a", label: "Status is 422, not 400 or 500" },
-                { id: "b", label: "The error response identifies the exact failing field" },
-                { id: "c", label: "The user should still be created, with a warning" },
-                { id: "d", label: "No user record was created in the DB" },
+                { id: "a", label: "Status is 422, not 400 or 500", why: "Right - 422 is the semantically correct code for a validation failure, distinct from 400 (malformed) or 500 (server error)." },
+                { id: "b", label: "The error response identifies the exact failing field", why: "Right - pinpointing the failing field is what makes the error response actually actionable." },
+                { id: "c", label: "The user should still be created, with a warning", why: "Wrong - a rejected write should not partially succeed; creating the user 'with a warning' defeats the point of validation." },
+                { id: "d", label: "No user record was created in the DB", why: "Right - the third leg of a negative test is state: a rejected request should leave zero trace in the database." },
             ],
             correct: ["a", "b", "d"],
             explanation: "Testers regularly skip the third leg of a negative test: state non-mutation. A rejected write should leave zero trace behind.",
@@ -490,10 +518,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "What's happening, and what would you check?",
             type: "single",
             options: [
-                { id: "a", label: "The write failed silently - check for a rollback" },
-                { id: "b", label: "A stale cache is likely serving the read before invalidation completes" },
-                { id: "c", label: "The GET endpoint is broken and needs a rewrite" },
-                { id: "d", label: "This is expected - reads and writes are unrelated" },
+                { id: "a", label: "The write failed silently - check for a rollback", why: "Wrong - nothing here suggests the write failed; the response for the PUT was 200 OK." },
+                { id: "b", label: "A stale cache is likely serving the read before invalidation completes", why: "Right - a write-then-read gap that serves stale data is a textbook cache invalidation bug." },
+                { id: "c", label: "The GET endpoint is broken and needs a rewrite", why: "Wrong - the GET endpoint works fine on its own; the bug is in the write path's cache invalidation timing." },
+                { id: "d", label: "This is expected - reads and writes are unrelated", why: "Wrong - reads and writes to the same resource are very much related; this is the definition of a consistency bug." },
             ],
             correct: ["b"],
             explanation: "This is the classic write-then-read cache invalidation gap - a real production bug pattern, and not a status-code problem at all.",
@@ -506,10 +534,10 @@ import BackLink from "../../components/ui/BackLink.astro";
             question: "What's the most useful next step?",
             type: "single",
             options: [
-                { id: "a", label: "Assume the payment failed and let the user retry immediately" },
-                { id: "b", label: "Check whether the payment service actually completed the transaction before the gateway gave up" },
-                { id: "c", label: "Treat it the same as a 502 and move on" },
-                { id: "d", label: "Ignore it - 504 is considered a client-side issue" },
+                { id: "a", label: "Assume the payment failed and let the user retry immediately", why: "Wrong - assuming failure and letting the user retry immediately is exactly how duplicate charges happen." },
+                { id: "b", label: "Check whether the payment service actually completed the transaction before the gateway gave up", why: "Right - a gateway timeout only means your side gave up waiting; the downstream service may have completed anyway." },
+                { id: "c", label: "Treat it the same as a 502 and move on", why: "Wrong - 504 (gateway timeout) and 502 (bad gateway) point to different failure modes and warrant different investigation." },
+                { id: "d", label: "Ignore it - 504 is considered a client-side issue", why: "Wrong - 504 is a server/infrastructure-side timeout, not a client-side issue to ignore." },
             ],
             correct: ["b"],
             explanation: "A timeout on your side doesn't mean nothing happened on the other side. This exact scenario is how duplicate charges happen when testers only look at the response.",
@@ -621,7 +649,7 @@ import BackLink from "../../components/ui/BackLink.astro";
                 btn.className = "option-btn";
                 btn.dataset.id = opt.id;
                 btn.dataset.type = c.type;
-                btn.innerHTML = `<span class="option-marker"></span><span>${opt.label}</span>`;
+                btn.innerHTML = `<span class="option-marker"></span><span class="option-content"><span class="option-label">${opt.label}</span><span class="option-why" hidden>${opt.why}</span></span>`;
                 if (c.type === "single") {
                     btn.addEventListener("click", () => handleSingleAnswer(btn, opt.id, c));
                 } else {
@@ -674,6 +702,9 @@ import BackLink from "../../components/ui/BackLink.astro";
                 if (isRight && wasChosen) el.classList.add("correct");
                 else if (!isRight && wasChosen) el.classList.add("incorrect");
                 else if (isRight && !wasChosen) el.classList.add("missed");
+
+                const whyEl = el.querySelector<HTMLElement>(".option-why");
+                if (whyEl) whyEl.hidden = false;
             });
 
             explanation.textContent = c.explanation;
