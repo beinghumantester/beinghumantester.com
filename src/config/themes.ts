@@ -3,15 +3,15 @@ import type { Theme, ThemeColors, ThemeName } from "../types/themes";
 export { type Theme, type ThemeName, type ThemeColors };
 
 export const THEMES: Record<string, Theme> = {
-    light_default: {
-        background: "#f9fafb",
-        foreground: "#111827",
-        accent: "#3b82f6",
-        muted: "#6b7280",
-        border: "#e5e7eb",
-        surface: "#f9fafb",
-        isDark: false,
-    },
+  light_default: {
+    background: "#f9fafb",
+    foreground: "#111827",
+    accent: "#0b5fe9",   // was "#3b82f6" - 3.52:1, failed WCAG AA
+    muted: "#6b7280",
+    border: "#e5e7eb",
+    surface: "#f9fafb",
+    isDark: false,
+},
     dark_default: {
         background: "#212737",
         foreground: "#eaedf3",
