@@ -18,6 +18,13 @@ jobs:
     # after a failed deploy, since the live site wouldn't have changed.
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    # Explicitly narrowed, not the repo/org default: this workflow can
+    # read the repo and open Issues, nothing else. Uses the automatic,
+    # ephemeral GITHUB_TOKEN GitHub already provides per-run - not a
+    # new secret to create or manage, and it expires when the job ends.
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Checkout automation framework
         uses: actions/checkout@v4
@@ -61,9 +68,55 @@ jobs:
             health-scan-baseline-
 
       - name: Compare against previous scan
+        id: diff
         working-directory: automation
         run: |
           python3 scripts/diff_scan.py ../previous_scan.json reports/health_scan.json
+
+      - name: Open GitHub Issue for new findings
+        # Only runs when the diff step found something genuinely new -
+        # a clean or unchanged result produces no Issue at all, which is
+        # the whole point: most runs should be quiet, not noisy.
+        if: steps.diff.outputs.has_new_findings == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const diff = JSON.parse(
+              fs.readFileSync('automation/scan_diff.json', 'utf8')
+            );
+
+            let body = '## New findings from the automated health scan\n\n';
+            body += `Triggered by [this run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}).\n\n`;
+
+            if (diff.new_accessibility.length > 0) {
+              body += '### New accessibility violations\n';
+              for (const [page, id] of diff.new_accessibility) {
+                body += `- **${id}** on \`${page}\`\n`;
+              }
+              body += '\n';
+            }
+
+            if (diff.new_broken_links.length > 0) {
+              body += '### New broken links\n';
+              for (const url of diff.new_broken_links) {
+                body += `- ${url}\n`;
+              }
+              body += '\n';
+            }
+
+            body += '---\n';
+            body += 'Not auto-fixed. Bring this to a review session, ';
+            body += 'confirm the root cause, and propose a fix manually ';
+            body += 'before any code changes here.';
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Health scan: new findings (run ${context.runId})`,
+              body: body,
+              labels: ['health-scan'],
+            });
 
       - name: Update baseline with this run's scan
         # Without this, the cache would keep saving the OLD baseline
