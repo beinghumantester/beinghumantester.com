@@ -35,18 +35,6 @@ jobs:
         working-directory: automation
         run: pip install -r requirements.txt
 
-      - name: DEBUG - list what was actually checked out
-        working-directory: automation
-        run: |
-          echo "Current directory:"
-          pwd
-          echo ""
-          echo "Top-level contents:"
-          ls -la
-          echo ""
-          echo "Looking for tests folder specifically:"
-          find . -iname "test_health_and_quality.py"
-
       - name: Wait for deploy to fully propagate
         # GitHub Pages deploys can take a short moment to actually serve
         # the new content after the deploy job itself reports success.
@@ -58,6 +46,37 @@ jobs:
           BASE_URL: https://beinghumantester.com
           HEADLESS: "true"
         run: pytest tests/test_health_and_quality.py -v
+
+      - name: Restore previous scan for comparison
+        # Uses a rotating-key pattern: each run saves under a unique key
+        # (below), but restores the MOST RECENT one matching the prefix.
+        # No new credentials needed - this is the repo's own built-in
+        # cache, not a cross-repo write, which is why this avoids the
+        # token/exposure questions raised earlier for other approaches.
+        uses: actions/cache/restore@v4
+        with:
+          path: previous_scan.json
+          key: health-scan-baseline-${{ github.run_id }}
+          restore-keys: |
+            health-scan-baseline-
+
+      - name: Compare against previous scan
+        working-directory: automation
+        run: |
+          python3 scripts/diff_scan.py ../previous_scan.json reports/health_scan.json
+
+      - name: Update baseline with this run's scan
+        # Without this, the cache would keep saving the OLD baseline
+        # forever - the comparison would run correctly each time, but
+        # always against the same stale snapshot, since nothing else
+        # here ever advances what "previous" actually points to.
+        run: cp automation/reports/health_scan.json previous_scan.json
+
+      - name: Save this scan as the new baseline
+        uses: actions/cache/save@v4
+        with:
+          path: previous_scan.json
+          key: health-scan-baseline-${{ github.run_id }}
 
       - name: Upload scan results
         # Runs even if the tests above failed (e.g. a real violation was
