@@ -6,7 +6,6 @@ name: Health Check Scan
 # declared in deploy.yml's own `name:` field - GitHub's workflow_run
 # trigger matches on this name, not the filename, so this string has to
 # be exact or the trigger silently never fires.
-
 on:
   workflow_run:
     workflows: ["Deploy to GitHub Pages"]
