@@ -35,6 +35,18 @@ jobs:
         working-directory: automation
         run: pip install -r requirements.txt
 
+      - name: DEBUG - list what was actually checked out
+        working-directory: automation
+        run: |
+          echo "Current directory:"
+          pwd
+          echo ""
+          echo "Top-level contents:"
+          ls -la
+          echo ""
+          echo "Looking for tests folder specifically:"
+          find . -iname "test_health_and_quality.py"
+
       - name: Wait for deploy to fully propagate
         # GitHub Pages deploys can take a short moment to actually serve
         # the new content after the deploy job itself reports success.
