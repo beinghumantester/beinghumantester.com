@@ -42,9 +42,15 @@ The developers spent hours debugging the issue. Ultimately, they restored the co
 This incident underscored several critical lessons for me and the team:
 
 - **Always Use Transactions:** Database updates should be executed within a transaction block to allow rollback in case of errors.
+
 - **Review Before Execution:** Every database command, especially updates, must be reviewed carefully to avoid catastrophic impacts.
+
 - **Environment Permissions:** Access to production-like environments such as UAT should be restricted or require approval for critical updates.
+
 - **Backup Assurance:** Always ensure that a backup exists before performing significant changes in any environment.
+
 - **Safe Update Mode:** Databases should have safe update mode enabled by default. This setting prevents accidental updates or deletions without a `WHERE` condition or a primary key, safeguarding against widespread changes.
+
 - **Immediate Escalation:** When encountering issues, it's vital to inform the team or escalate to senior members rather than proceeding independently.
+
 - **Post-Incident Improvements:** Following this incident, we implemented a stricter approval workflow for database updates and introduced a checklist to ensure commands are reviewed and tested in isolated environments before execution.
