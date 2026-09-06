@@ -1,0 +1,57 @@
+name: Health Check Scan
+
+# Runs AFTER the site's real deploy finishes, not on the same push event -
+# this is what confirms the scan checks what's actually live, not code
+# that's still mid-deploy. Matches "Deploy to GitHub Pages" exactly as
+# declared in deploy.yml's own `name:` field - GitHub's workflow_run
+# trigger matches on this name, not the filename, so this string has to
+# be exact or the trigger silently never fires.
+on:
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types:
+      - completed
+
+jobs:
+  health-scan:
+    # Only scan if the deploy actually succeeded - no point scanning
+    # after a failed deploy, since the live site wouldn't have changed.
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout automation framework
+        uses: actions/checkout@v4
+        with:
+          # Public repo, so no token needed for this checkout.
+          repository: beinghumantester/portoflio_website_automation
+          path: automation
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        working-directory: automation
+        run: pip install -r requirements.txt
+
+      - name: Wait for deploy to fully propagate
+        # GitHub Pages deploys can take a short moment to actually serve
+        # the new content after the deploy job itself reports success.
+        run: sleep 30
+
+      - name: Run health and quality checks
+        working-directory: automation
+        env:
+          BASE_URL: https://beinghumantester.com
+          HEADLESS: "true"
+        run: pytest tests/test_health_and_quality.py -v
+
+      - name: Upload scan results
+        # Runs even if the tests above failed (e.g. a real violation was
+        # found) - the whole point is to capture the report either way.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-scan-results
+          path: automation/reports/health_scan.json
