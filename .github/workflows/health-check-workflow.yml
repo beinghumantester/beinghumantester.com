@@ -26,6 +26,13 @@ jobs:
       contents: read
       issues: write
     steps:
+      - name: Checkout site source
+        # Needed so the context bundler (added below) can actually
+        # search real source files for a violation's CSS target. Never
+        # had this before, since nothing until now needed the site's
+        # own code - only the automation repo's test suite.
+        uses: actions/checkout@v4
+
       - name: Checkout automation framework
         uses: actions/checkout@v4
         with:
@@ -73,6 +80,18 @@ jobs:
         run: |
           python3 scripts/diff_scan.py ../previous_scan.json reports/health_scan.json
 
+      - name: Find likely relevant source files
+        # Only worth running when something new was actually found - no
+        # point searching source for a clean/unchanged result. Site repo
+        # is already checked out at the workspace root (first step
+        # above), so `.` is the site's own source root here.
+        if: steps.diff.outputs.has_new_findings == 'true'
+        run: |
+          python3 .github/scripts/context_bundler.py \
+            automation/scan_diff.json \
+            . \
+            automation/reports/health_scan.json
+
       - name: Open GitHub Issue for new findings
         # Only runs when the diff step found something genuinely new -
         # a clean or unchanged result produces no Issue at all, which is
@@ -86,6 +105,23 @@ jobs:
               fs.readFileSync('automation/scan_diff.json', 'utf8')
             );
 
+            // Bundle may not exist if the only new findings were broken
+            // links (bundler only handles accessibility today) - treat
+            // that as "no suggestions available" rather than an error.
+            let bundle = { findings: [] };
+            try {
+              bundle = JSON.parse(fs.readFileSync('context_bundle.json', 'utf8'));
+            } catch (e) {
+              // No bundle produced this run - fine, just no file hints.
+            }
+
+            const findFiles = (page, violationId) => {
+              const match = bundle.findings.find(
+                (f) => f.page === page && f.violation_id === violationId
+              );
+              return match ? match.likely_relevant_files : [];
+            };
+
             let body = '## New findings from the automated health scan\n\n';
             body += `Triggered by [this run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}).\n\n`;
 
@@ -93,6 +129,13 @@ jobs:
               body += '### New accessibility violations\n';
               for (const [page, id] of diff.new_accessibility) {
                 body += `- **${id}** on \`${page}\`\n`;
+                const files = findFiles(page, id);
+                if (files.length > 0) {
+                  body += '  - Likely relevant source (unverified, narrowed by CSS selector match only):\n';
+                  for (const f of files) {
+                    body += `    - \`${f}\`\n`;
+                  }
+                }
               }
               body += '\n';
             }
@@ -106,9 +149,11 @@ jobs:
             }
 
             body += '---\n';
-            body += 'Not auto-fixed. Bring this to a review session, ';
-            body += 'confirm the root cause, and propose a fix manually ';
-            body += 'before any code changes here.';
+            body += 'Not auto-fixed. File suggestions above are an ';
+            body += 'automated first pass, not a diagnosis - bring this ';
+            body += 'to a review session, confirm the real root cause ';
+            body += 'yourself, and propose a fix manually before any ';
+            body += 'code changes here.';
 
             await github.rest.issues.create({
               owner: context.repo.owner,
