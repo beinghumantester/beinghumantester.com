@@ -1,0 +1,16 @@
+{
+  "scanned_at": "2026-09-05T15:36:46.637938+00:00",
+  "base_url": "http://localhost:4321",
+  "accessibility": {
+    "/": [],
+    "/projects": [],
+    "/posts": [],
+    "/talks": [],
+    "/publications": []
+  },
+  "broken_links": [],
+  "security_headers": {
+    "missing": []
+  },
+  "performance": {}
+}
