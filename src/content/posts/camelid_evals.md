@@ -10,7 +10,7 @@ tags:
 ---
 # What I Learned Building a Testing Framework for a Local AI Model Engine
 
-I recently built a testing framework called `camelid evals` for a project called Camelid, which is a local AI inference engine that lets you run language models on your own machine instead of calling an API. This post is about that experience. What Camelid actually does, what I tried, how I tested it, and what I would still like to test in the future.
+I recently built a testing framework called [camelid evals](https://github.com/beinghumantester/camelid-evals) for a project called Camelid, which is a local AI inference engine that lets you run language models on your own machine instead of calling an API. This post is about that experience. What Camelid actually does, what I tried, how I tested it, and what I would still like to test in the future.
 
 If you have ever wondered how you actually check whether an AI system does what it claims to do, I think this story is a useful one, because most of the interesting parts were not about writing clever code. They were about being honest with myself about what I had actually verified and what I was only assuming.
 
