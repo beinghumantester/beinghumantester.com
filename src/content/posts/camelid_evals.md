@@ -1,5 +1,5 @@
 ---
-title: "What I Learned Building a Testing Framework for a Local AI Model Engine"
+title: "What I Learned Building a Testing Framework for a Local AI Engine"
 description: "A real story about building a testing framework for a local AI inference engine, and what it taught about verifying assumptions before trusting your own tests."
 author: "Ujjwal Kumar Singh"
 tags:
@@ -8,7 +8,6 @@ tags:
   - "Bug Investigation"
   - "Quality Assurance"
 ---
-# What I Learned Building a Testing Framework for a Local AI Model Engine
 
 I recently built a testing framework called [camelid evals](https://github.com/beinghumantester/camelid-evals) for a project called Camelid, which is a local AI inference engine that lets you run language models on your own machine instead of calling an API. This post is about that experience. What Camelid actually does, what I tried, how I tested it, and what I would still like to test in the future.
 
