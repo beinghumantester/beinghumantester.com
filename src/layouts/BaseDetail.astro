@@ -8,7 +8,7 @@ import { getDetailItem } from "../utils/adapters";
 import { SITE } from "../config";
 
 interface Props {
-    collection: "publications" | "talks" | "projects" | "posts" | "teaching" | "ai-in-testing" | "til";
+    collection: "publications" | "talks" | "projects" | "posts" | "teaching" | "ai-in-testing";
     id: string;
 }
 
@@ -31,7 +31,7 @@ if (detail.extraInput) {
 
 const description = entry.data.description || detail.description || SITE.desc;
 const ogImage = entry.data.image || SITE.ogImage;
-const backLabel = collection === "til" ? "TIL" : collection === "ai-in-testing" ? "AI In Testing" : collection;
+const backLabel = collection === "ai-in-testing" ? "AI In Testing" : collection;
 ---
 
 <BaseLayout title={detail.title} description={description} ogImage={ogImage} ogType="article">

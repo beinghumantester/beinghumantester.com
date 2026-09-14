@@ -19,7 +19,7 @@ export const NAV_LINKS: NavLink[] = [
         isActive: true,
         children: [
             { href: "/ai-in-testing", label: "AI In Testing", isActive: true },
-            { href: "/til", label: "TIL", isActive: true },
+            { href: "/roadmap", label: "AI Test Engineering Roadmap", isActive: true },
         ],
     },
     { href: "/cv", label: "CV", isActive: true },

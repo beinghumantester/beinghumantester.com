@@ -1,0 +1,1137 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { PAGES } from "../../config";
+---
+
+<BaseLayout
+    title={PAGES.roadmap.title}
+    description={PAGES.roadmap.subtitle}
+>
+    <header class="page-header">
+        <h1 class="page-title">AI / LLM Testing &amp; Automation Roadmap</h1>
+        <p class="page-subtitle">From SDET to AI Test Engineer — a practical, stage-by-stage guide for automation engineers moving into AI/LLM testing, and using AI to power their own automation.</p>
+        <p class="body-sm rm-flow-line">Understand &rarr; Evaluate &rarr; Test RAG &rarr; Observe &rarr; Secure &rarr; Test Agents &rarr; Automate</p>
+    </header>
+
+    <div class="container-narrow rm-wrap">
+        <!-- Quick nav -->
+        <nav class="rm-quicknav" aria-label="Jump to section">
+            <a href="#glance" class="tag">At a glance</a>
+            <a href="#core-idea" class="tag">The core idea</a>
+            <a href="#maturity" class="tag">Testing maturity</a>
+            <a href="#pace" class="tag">12-week pace</a>
+            <a href="#stages" class="tag">Stages</a>
+            <a href="#capstone" class="tag">Capstone</a>
+            <a href="#tools" class="tag">Tools</a>
+            <a href="#glossary" class="tag">Glossary</a>
+        </nav>
+
+        <!-- Who this is for -->
+        <section class="rm-card">
+            <h2 class="title-lg">Who this is for</h2>
+            <p class="body">Written for someone who already works as an SDET or automation engineer — comfortable with test design, scripting, frameworks like Selenium/Playwright, API testing, and CI/CD. Those fundamentals aren't repeated here. Each stage builds the AI/LLM-specific layer on top of what you already know, across two overlapping tracks:</p>
+            <ul class="body">
+                <li><strong>Testing AI/LLM-powered applications</strong> — chatbots, RAG systems, copilots, and autonomous agents behave differently from traditional software, so they need different testing techniques.</li>
+                <li><strong>Using AI/LLMs to power your own automation</strong> — AI coding assistants, self-healing tests, and automation agents that make you faster at the job you already do.</li>
+            </ul>
+            <p class="body-sm rm-muted">Prepared September 2026. Do the hands-on practice before moving to the next stage — this field is learned by building small things, not by reading alone.</p>
+        </section>
+
+        <!-- Core idea -->
+        <section id="core-idea" class="rm-callout">
+            <p class="body-sm rm-callout-label">THE ONE IDEA THAT RUNS THROUGH EVERYTHING</p>
+            <p class="body">Traditional testers already know how to design tests. The hard, genuinely new skill in AI systems is designing a reliable <strong>oracle</strong> — a way to judge whether a probabilistic, quality-graded output is "good enough" — and then automating that judgment. This roadmap calls that skill <strong>evaluation engineering</strong>, and it's the spine Stage 2 onward is built around:</p>
+            <p class="body rm-spine">LLM foundations &rarr; evaluation &rarr; RAG evaluation &rarr; production evaluation &rarr; security evaluation &rarr; agent evaluation</p>
+            <p class="body-sm">Once you have that mental model, every later stage reads as the same discipline applied to a new layer of the system, not a new, unrelated topic.</p>
+        </section>
+
+        <!-- Roadmap at a glance -->
+        <section id="glance" class="rm-section">
+            <h2 class="title-lg">Roadmap at a glance</h2>
+            <p class="body-sm rm-muted">Your content is stage/skill based — this is the journey, not a weekly schedule. Click a stage to jump to its detail card.</p>
+            <div class="rm-flow">
+                <div class="rm-flow-node rm-flow-node-ghost">SDET / Automation Engineer</div>
+                <div class="rm-flow-arrow">&darr;</div>
+                <a class="rm-flow-node" href="#stage-1"><span class="rm-flow-num">01</span> LLM &amp; GenAI Foundations</a>
+                <div class="rm-flow-arrow">&darr;</div>
+                <a class="rm-flow-node" href="#stage-2"><span class="rm-flow-num">02</span> Evaluation Engineering</a>
+                <div class="rm-flow-arrow">&darr;</div>
+                <a class="rm-flow-node" href="#stage-3"><span class="rm-flow-num">03</span> RAG &amp; Retrieval Testing</a>
+                <div class="rm-flow-arrow">&darr;</div>
+                <a class="rm-flow-node" href="#stage-4"><span class="rm-flow-num">04</span> CI/CD, Observability &amp; Production Testing</a>
+                <div class="rm-flow-arrow">&darr;</div>
+                <a class="rm-flow-node" href="#stage-5"><span class="rm-flow-num">05</span> Safety, Security &amp; Red-Teaming</a>
+                <div class="rm-flow-arrow">&darr;</div>
+                <a class="rm-flow-node" href="#stage-6"><span class="rm-flow-num">06</span> Agents &amp; Multi-Agent Systems</a>
+                <div class="rm-flow-arrow">&darr;</div>
+                <a class="rm-flow-node" href="#stage-7"><span class="rm-flow-num">07</span> AI-Powered Automation</a>
+                <div class="rm-flow-arrow">&darr;</div>
+                <a class="rm-flow-node rm-flow-node-end" href="#stage-8">CAPSTONE</a>
+            </div>
+            <p class="body-sm rm-muted">Stage 0, "what you're already bringing," sits before this journey starts — see the stage list below.</p>
+        </section>
+
+        <!-- Testing maturity progression -->
+        <section id="maturity" class="rm-section">
+            <h2 class="title-lg">Why this order: the testing-maturity progression</h2>
+            <p class="body-sm rm-muted">The roadmap isn't simply increasing knowledge — it's increasing the testing surface, one layer at a time.</p>
+            <div class="rm-flow rm-flow-tight">
+                <div class="rm-flow-node rm-level"><span class="rm-flow-num">L1</span> Test the response <span class="rm-level-desc">— Stage 1</span></div>
+                <div class="rm-flow-arrow">&darr;</div>
+                <div class="rm-flow-node rm-level"><span class="rm-flow-num">L2</span> Test the evaluation <span class="rm-level-desc">— Stage 2</span></div>
+                <div class="rm-flow-arrow">&darr;</div>
+                <div class="rm-flow-node rm-level"><span class="rm-flow-num">L3</span> Test the retrieval pipeline <span class="rm-level-desc">— Stage 3</span></div>
+                <div class="rm-flow-arrow">&darr;</div>
+                <div class="rm-flow-node rm-level"><span class="rm-flow-num">L4</span> Test the production system <span class="rm-level-desc">— Stage 4</span></div>
+                <div class="rm-flow-arrow">&darr;</div>
+                <div class="rm-flow-node rm-level"><span class="rm-flow-num">L5</span> Attack the system <span class="rm-level-desc">— Stage 5</span></div>
+                <div class="rm-flow-arrow">&darr;</div>
+                <div class="rm-flow-node rm-level"><span class="rm-flow-num">L6</span> Test autonomous behaviour <span class="rm-level-desc">— Stage 6</span></div>
+                <div class="rm-flow-arrow">&darr;</div>
+                <div class="rm-flow-node rm-level"><span class="rm-flow-num">L7</span> Use AI to improve testing <span class="rm-level-desc">— Stage 7</span></div>
+            </div>
+        </section>
+
+        <!-- 12-week pace -->
+        <section id="pace" class="rm-section">
+            <h2 class="title-lg">Suggested 12-week pace</h2>
+            <p class="body-sm rm-muted"><strong>Suggested pace — not required sequence.</strong> This covers solid exposure to every stage plus one portfolio project, not mastery. Stage = curriculum unit; week = suggested pacing — go slower on stages 1, 3, 5, 6 (likely newest to you) and faster through 2, 4, 7 (closer to skills you already have).</p>
+            <div class="rm-pace">
+                <div class="rm-pace-chip"><span class="rm-pace-week">Week 1</span>Stage 1 · LLM Foundations</div>
+                <span class="rm-pace-arrow">&rarr;</span>
+                <div class="rm-pace-chip"><span class="rm-pace-week">Weeks 2–3</span>Stage 2 · Evaluation Engineering</div>
+                <span class="rm-pace-arrow">&rarr;</span>
+                <div class="rm-pace-chip"><span class="rm-pace-week">Weeks 4–5</span>Stage 3 · RAG Testing</div>
+                <span class="rm-pace-arrow">&rarr;</span>
+                <div class="rm-pace-chip"><span class="rm-pace-week">Weeks 6–7</span>Stage 4 · Production Testing</div>
+                <span class="rm-pace-arrow">&rarr;</span>
+                <div class="rm-pace-chip"><span class="rm-pace-week">Weeks 8–9</span>Stage 5 · Security &amp; Red-Teaming</div>
+                <span class="rm-pace-arrow">&rarr;</span>
+                <div class="rm-pace-chip"><span class="rm-pace-week">Weeks 10–11</span>Stage 6 · Agent Testing</div>
+                <span class="rm-pace-arrow">&rarr;</span>
+                <div class="rm-pace-chip rm-pace-chip-end"><span class="rm-pace-week">Week 12+</span>Stage 7 · AI-Powered Automation, then Capstone (ongoing)</div>
+            </div>
+        </section>
+
+        <!-- STAGES -->
+        <section id="stages" class="rm-section">
+            <h2 class="title-lg">The stages</h2>
+
+            <!-- Stage 0 -->
+            <details class="rm-stage" id="stage-0">
+                <summary class="rm-stage-summary">
+                    <span class="rm-stage-badge">STAGE 0</span>
+                    <span class="rm-stage-title">What You're Already Bringing to This</span>
+                </summary>
+                <div class="rm-stage-body">
+                    <p class="rm-goal"><strong>Goal:</strong> Recognize which SDET skills transfer directly, so you can see exactly where the new skills in Stage 1 onward have to attach.</p>
+                    <p class="body">These skills transfer directly and are assumed throughout the rest of the roadmap:</p>
+                    <ul class="body">
+                        <li>Test design fundamentals — equivalence classes, boundary values, positive/negative cases.</li>
+                        <li>Scripting and automation frameworks (Selenium, Playwright, REST-assured, Postman/Newman, etc.).</li>
+                        <li>CI/CD pipelines, version control, and treating test assets as code.</li>
+                        <li>API testing — most LLM interactions happen over REST/streaming APIs, so this is directly reusable.</li>
+                        <li>Reading logs, debugging failures, and writing clear defect reports.</li>
+                    </ul>
+                    <p class="body">What's new is not <em>how</em> to test but <em>what</em> you're testing: systems that are non-deterministic, graded on quality rather than pass/fail, and vulnerable to failure modes traditional software doesn't have (hallucination, prompt injection, bias).</p>
+                    <p class="rm-outcome"><strong>After this stage, you can:</strong> name exactly which of your existing SDET skills carry over, and where AI-specific testing has to add something new.</p>
+                </div>
+            </details>
+
+            <!-- Stage 1 -->
+            <details class="rm-stage" id="stage-1" open>
+                <summary class="rm-stage-summary">
+                    <span class="rm-stage-badge">STAGE 1</span>
+                    <span class="rm-stage-title">LLM &amp; Generative AI Foundations</span>
+                    <span class="rm-stage-time">~1 week</span>
+                </summary>
+                <div class="rm-stage-body">
+                    <p class="rm-goal"><strong>Goal:</strong> Understand what a large language model actually is, how LLM-powered applications are built, and the vocabulary you'll need for every later stage.</p>
+
+                    <h4 class="title-md">1.1 What is an LLM, really?</h4>
+                    <ul class="body">
+                        <li><strong>Tokens &amp; context window</strong> — text is broken into tokens; the model can only "see" a limited number at once. Long inputs get truncated or pushed out of context.</li>
+                        <li><strong>Prompt &amp; completion</strong> — the prompt is your input (instructions + data); the completion is what the model generates.</li>
+                        <li><strong>Temperature &amp; top-p</strong> — settings controlling randomness. Higher temperature = more varied, less predictable output — directly relevant to why the same test can pass once and fail the next run.</li>
+                        <li><strong>Inference vs. training</strong> — as a tester you work almost entirely at inference time (calling an already-trained model).</li>
+                        <li><strong>Non-determinism</strong> — the same input can legitimately produce different, equally "correct" outputs. This single fact is why exact-match assertions stop working, and it's the thread running through this entire roadmap.</li>
+                    </ul>
+
+                    <h4 class="title-md">1.2 How LLM applications are actually built</h4>
+                    <ul class="body">
+                        <li><strong>Plain prompting</strong> — instructions and examples crafted directly in the prompt; no extra data sources.</li>
+                        <li><strong>Retrieval-Augmented Generation (RAG)</strong> — the app fetches relevant documents (via embeddings + a vector database) and feeds them as context, so answers are grounded in real data.</li>
+                        <li><strong>Fine-tuning</strong> — further training the base model's weights on domain data. Rarer than prompting/RAG, but know when it's chosen: consistent style/format, domain jargon, cost reduction at scale.</li>
+                        <li><strong>Agents</strong> — the model is given tools/functions it can call and reasons across multiple steps. Multi-agent systems chain several specialized agents together.</li>
+                    </ul>
+
+                    <h4 class="title-md">1.3 Talking to LLMs programmatically</h4>
+                    <ul class="body">
+                        <li>REST APIs from Anthropic, OpenAI, Google, plus locally-hosted open models (e.g. via Ollama) for cheaper, offline experimentation.</li>
+                        <li>The system/user/assistant message structure, and how system prompts set behavior boundaries.</li>
+                        <li>Function/tool calling — how a model requests that your code run a function and returns the result.</li>
+                        <li>Streaming responses — most production chat UIs stream tokens, which affects how you capture output for testing.</li>
+                        <li>Basic use of a provider SDK in Python or JS/TS — whichever matches your existing automation stack.</li>
+                    </ul>
+
+                    <h4 class="title-md">1.4 Why LLM testing breaks traditional assumptions</h4>
+                    <p class="body-sm rm-muted">Keep this list handy for the rest of the roadmap — every later stage is really just building tooling to handle these points systematically.</p>
+                    <ul class="body">
+                        <li>No single "correct" output — quality is graded on a spectrum, not asserted pass/fail.</li>
+                        <li>Non-determinism — identical inputs can produce different outputs, so a single run proves very little.</li>
+                        <li>New failure modes: hallucination, bias, prompt injection, inconsistency across runs, unpredictable cost/latency.</li>
+                        <li>The system under test can be updated silently by the vendor (a model version change), shifting behavior with no code change on your side.</li>
+                    </ul>
+
+                    <div class="rm-practice">
+                        <p class="rm-practice-label">✎ HANDS-ON PRACTICE — Get hands-on with raw model behavior</p>
+                        <ul class="body-sm">
+                            <li>Get an API key from an LLM provider (Anthropic or OpenAI both have simple free/low-cost tiers).</li>
+                            <li>Write a short script (15–20 lines) that sends 5 different prompts and prints each response.</li>
+                            <li>Send the exact same prompt 3 times in a row and compare outputs side by side — note what stays the same and what varies.</li>
+                            <li>Repeat one prompt at a low temperature and a high temperature and observe the difference in variability.</li>
+                        </ul>
+                    </div>
+
+                    <p class="rm-outcome"><strong>After this stage, you can:</strong> explain, in plain terms, why the same prompt run three times can legitimately produce three different, equally correct answers — and why exact-match assertions break down as a result.</p>
+                </div>
+            </details>
+
+            <!-- Stage 2 -->
+            <details class="rm-stage" id="stage-2">
+                <summary class="rm-stage-summary">
+                    <span class="rm-stage-badge">STAGE 2</span>
+                    <span class="rm-stage-title">Evaluation Engineering</span>
+                    <span class="rm-stage-time">~2 weeks</span>
+                </summary>
+                <div class="rm-stage-body">
+                    <p class="rm-goal"><strong>Goal:</strong> Learn the central skill of AI testing: designing a reliable oracle for a probabilistic, quality-graded system, then automating that judgment so it runs on every change. Every later stage is this same discipline applied to a new layer.</p>
+
+                    <h4 class="title-md">2.1 What exactly are we testing? The AI application stack</h4>
+                    <p class="body">An AI application is not just "the model." A wrong answer can originate in any layer — a senior tester's first question is never "was this correct," it's "which layer caused this."</p>
+                    <div class="rm-flow rm-flow-tight rm-flow-compact">
+                        <div class="rm-flow-node rm-flow-node-ghost">Prompt · Model · Data</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Retrieval</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Tools</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Orchestration</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Memory</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Guardrails</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Output</div>
+                    </div>
+                    <p class="body-sm rm-muted">A single symptom — "the answer was wrong" — can trace back to any of these causes:</p>
+                    <ul class="body">
+                        <li><strong>Model failure</strong> — the model reasoned incorrectly even with the right information.</li>
+                        <li><strong>Prompt failure</strong> — instructions were ambiguous, contradictory, or missing a needed constraint.</li>
+                        <li><strong>Retrieval/chunking/embedding failure</strong> — the wrong (or no) supporting content was fetched.</li>
+                        <li><strong>Context-selection failure</strong> — the right content was retrieved but didn't make it into the final prompt (truncation, ranking, context-window limits).</li>
+                        <li><strong>Tool or orchestration failure</strong> — a function call used the wrong arguments, or steps ran in the wrong order.</li>
+                        <li><strong>Safety-filter failure</strong> — a guardrail over- or under-blocked legitimate content.</li>
+                        <li><strong>Stale data</strong> — the underlying knowledge source was out of date.</li>
+                        <li><strong>Evaluation failure</strong> — the output was actually fine and your test oracle scored it wrong (see 2.5).</li>
+                    </ul>
+                    <p class="body-sm rm-muted">Stage 3 applies this to the retrieval layer, Stage 5 to guardrails/safety, Stage 6 to orchestration/tools.</p>
+
+                    <h4 class="title-md">2.2 The testing types you now need to add</h4>
+                    <ul class="body">
+                        <li><strong>Functional/output-quality</strong> — does the response answer the question and follow instructions (format, tone, constraints)?</li>
+                        <li><strong>Consistency &amp; regression</strong> — does behavior stay acceptably stable across prompt edits and model/version upgrades?</li>
+                        <li><strong>Safety &amp; compliance</strong> — toxicity, bias, leakage of personal or sensitive information.</li>
+                        <li><strong>Robustness</strong> — edge cases, malformed input, adversarial phrasing, out-of-scope requests.</li>
+                        <li><strong>Performance &amp; cost</strong> — latency and token cost per request, more like a variable resource budget than fixed compute cost.</li>
+                    </ul>
+
+                    <h4 class="title-md">2.3 Building test oracles: golden, regression, adversarial, boundary &amp; synthetic datasets</h4>
+                    <p class="body">A golden dataset is your evaluation suite's raw material — version-controlled inputs paired with expected behavior or scoring criteria, often a rubric rather than an exact string. Treat it as several purpose-built slices:</p>
+                    <ul class="body">
+                        <li><strong>Golden cases</strong> — known-good, carefully reviewed examples that define "correct" for the feature.</li>
+                        <li><strong>Regression cases</strong> — real failures found in testing or production, added the moment you find them so they can never silently reappear.</li>
+                        <li><strong>Adversarial cases</strong> — inputs deliberately designed to break the system: contradictory instructions, prompt-injection attempts, edge-of-policy requests.</li>
+                        <li><strong>Boundary cases</strong> — inputs near a system limit: max context length, empty input, extreme values, unsupported languages.</li>
+                        <li><strong>Synthetic/generated cases</strong> — LLM- or script-generated cases to expand coverage quickly; always have a human validate a sample before trusting them.</li>
+                    </ul>
+                    <div class="rm-callout rm-callout-sm">
+                        <p class="body-sm"><strong>Bridge from what you already know:</strong> your golden dataset is your new regression suite. Version-control it, diff it, and tie every case to the prompt/model version it was run against — exactly like test code.</p>
+                    </div>
+
+                    <h4 class="title-md">2.4 Evaluation methods &amp; metrics — the testing pyramid</h4>
+                    <p class="body">You'll typically combine several methods — no single one covers everything. The guiding rule: use the cheapest, most deterministic check that can actually answer the question, and reach for a model-based judge only when nothing below it in the pyramid can.</p>
+                    <div class="rm-pyramid">
+                        <div class="rm-pyramid-row" style="--w:38%">Human Evaluation</div>
+                        <div class="rm-pyramid-row" style="--w:52%">LLM-as-Judge / Expert Review</div>
+                        <div class="rm-pyramid-row" style="--w:68%">Model-Based Evals / Rubric Scoring</div>
+                        <div class="rm-pyramid-row" style="--w:84%">Programmatic Assertions (contains · length · regex)</div>
+                        <div class="rm-pyramid-row" style="--w:94%">API / Tool / Schema Validation</div>
+                        <div class="rm-pyramid-row rm-pyramid-base" style="--w:100%">Deterministic Checks — exact match, regex, JSON-schema, rules</div>
+                    </div>
+                    <p class="body-sm rm-muted">Narrower, more expensive, more subjective checks belong near the top — not as the default.</p>
+                    <ul class="body">
+                        <li><strong>Deterministic checks</strong> — exact match, regex, JSON-schema validation, contains/excludes a keyword. Fast, cheap, the right first line of defense wherever output has a predictable shape.</li>
+                        <li><strong>Similarity-based scoring</strong> — embedding/cosine similarity; BLEU/ROUGE exist but are of limited use for open-ended text — know they exist, don't over-rely on them.</li>
+                        <li><strong>LLM-as-judge</strong> — a second LLM call scores output against a written rubric (e.g. 1–5 on relevance, correctness, tone). Scales well, captures nuance, but costs money and can carry its own biases.</li>
+                        <li><strong>Human evaluation</strong> — still the gold standard for subjective quality. Use structured rubrics and, where possible, more than one rater to check agreement.</li>
+                    </ul>
+                    <p class="body">Two examples of picking the right level: if output must be valid JSON, parse it — don't ask a second LLM "is this valid JSON?" If output must contain a specific ID, assert on it directly. Reserve LLM-as-judge and human review for genuinely subjective quality — tone, helpfulness, nuance — where no deterministic check is possible.</p>
+
+                    <h4 class="title-md">2.5 The evaluator is itself a system that needs testing</h4>
+                    <p class="body">The moment you introduce LLM-as-judge, you've added a second model call between "the system did something" and "you know whether it was right" — and that judge is itself non-deterministic and can be wrong.</p>
+                    <div class="rm-flow rm-flow-tight rm-flow-compact">
+                        <div class="rm-flow-node rm-flow-node-ghost">Application LLM</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Response</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Judge LLM</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">1–5 Score</div>
+                    </div>
+                    <p class="body-sm rm-muted">A judge score is an opinion from another model, not ground truth — test it like any other oracle:</p>
+                    <ul class="body">
+                        <li><strong>Judge consistency</strong> — same score on the same input across repeated runs?</li>
+                        <li><strong>Judge bias</strong> — does it systematically favor longer answers, certain phrasing, or its own model family's style?</li>
+                        <li><strong>Rubric quality</strong> — specific enough that two reviewers would apply it the same way?</li>
+                        <li><strong>Calibration</strong> — do scores track human judgment across the whole range, not just the extremes?</li>
+                        <li><strong>False positives/negatives</strong> — track cases the judge passed that a human would fail, and vice versa.</li>
+                        <li><strong>Human agreement</strong> — periodically sample judge scores against human ratings; alert if agreement drops.</li>
+                        <li><strong>Judge/model version drift</strong> — a judge model upgrade can silently shift your whole scoring scale.</li>
+                    </ul>
+
+                    <h4 class="title-md">2.6 Prompt regression &amp; version control</h4>
+                    <p class="body">Treat prompts as code: store them in version control, diff every change, and re-run your golden-dataset suite before any prompt or model change ships. A prompt regression suite turns "someone tweaked the prompt and something broke" from a production incident into a caught pull-request failure.</p>
+
+                    <h4 class="title-md">2.7 Tools to learn — one per category</h4>
+                    <table class="rm-table">
+                        <thead><tr><th>Problem</th><th>Start with (alternative)</th></tr></thead>
+                        <tbody>
+                            <tr><td>General-purpose evals</td><td>Promptfoo (or DeepEval)</td></tr>
+                            <tr><td>RAG evaluation</td><td>Ragas</td></tr>
+                            <tr><td>Provider eval patterns</td><td>OpenAI Evals / Anthropic eval cookbook (reference only)</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="rm-practice">
+                        <p class="rm-practice-label">✎ HANDS-ON PRACTICE — Build your first eval suite</p>
+                        <ul class="body-sm">
+                            <li>Pick one small LLM feature to test — a support chatbot prompt, a summarizer, or a classifier prompt.</li>
+                            <li>Write a 15-case golden dataset: normal cases, edge cases, and at least 2 adversarial inputs.</li>
+                            <li>Implement it in Promptfoo or DeepEval so it runs automatically and produces a score/pass-fail report.</li>
+                            <li>Re-run after deliberately editing the prompt, and confirm the report shows the regression.</li>
+                        </ul>
+                    </div>
+
+                    <div class="rm-portfolio">
+                        <p class="rm-practice-label">PORTFOLIO PROJECT — Evaluation framework for an open-source chatbot</p>
+                        <div class="rm-flow rm-flow-tight rm-flow-compact">
+                            <div class="rm-flow-node rm-flow-node-ghost">LibreChat (model + RAG + tools)</div>
+                            <div class="rm-flow-arrow">&darr;</div>
+                            <div class="rm-flow-node rm-flow-node-ghost">Responses</div>
+                            <div class="rm-flow-arrow">&darr;</div>
+                            <div class="rm-flow-node rm-flow-node-ghost">Evaluation Layer</div>
+                            <div class="rm-flow-arrow">&darr;</div>
+                            <div class="rm-flow-node rm-flow-node-ghost">Correctness · Grounding · Safety</div>
+                            <div class="rm-flow-arrow">&darr;</div>
+                            <div class="rm-flow-node rm-flow-node-end">Report &rarr; CI Quality Gate</div>
+                        </div>
+                        <p class="body-sm">"I designed and automated an evaluation strategy for a real AI application" is a far stronger portfolio statement than "I learned Ragas."</p>
+                        <p class="body-sm"><strong>✎ Stretch practice:</strong> stand up an open-source, self-hostable chat platform such as LibreChat (multiple model providers plus RAG and tool/agent capabilities). Design a golden/regression dataset, deterministic checks where possible, and an LLM-as-judge for subjective quality spot-checked against your own ratings. Score correctness, groundedness, and safety separately rather than one blended number, wire the suite into a CI quality gate, and publish the dataset, eval code, and sample report — see the <a href="#capstone">Capstone</a> section.</p>
+                    </div>
+
+                    <p class="rm-outcome"><strong>After this stage, you can:</strong> build an automated evaluation suite that determines whether an LLM response meets defined quality criteria.</p>
+                </div>
+            </details>
+
+            <!-- Stage 3 -->
+            <details class="rm-stage" id="stage-3">
+                <summary class="rm-stage-summary">
+                    <span class="rm-stage-badge">STAGE 3</span>
+                    <span class="rm-stage-title">Testing RAG &amp; Retrieval-Based Systems</span>
+                    <span class="rm-stage-time">~1.5 weeks</span>
+                </summary>
+                <div class="rm-stage-body">
+                    <p class="rm-goal"><strong>Goal:</strong> Test the most common production LLM pattern — retrieval-augmented generation — end to end, not just the final generated answer.</p>
+
+                    <h4 class="title-md">3.1 RAG architecture in plain terms</h4>
+                    <p class="body">Documents are split into chunks, converted to embeddings, and stored in a vector database. At query time, the user's question is embedded and used to retrieve the most relevant chunks, which are inserted into the prompt as context so the LLM can generate a grounded answer. Bad chunking, poor retrieval ranking, or a context window too small to hold everything relevant can all produce a wrong answer even when the underlying model is fine — which is why RAG needs its own layer of testing.</p>
+
+                    <h4 class="title-md">3.2 RAG quality has three separate dimensions</h4>
+                    <p class="body">Resist scoring a RAG system with one blended number. "Wrong answer" can mean retrieval fetched the wrong thing, the model didn't use what was retrieved, or the answer didn't address the question — three different bugs with three different owners.</p>
+                    <div class="rm-cols-3">
+                        <div class="rm-col-card">
+                            <p class="title-md">Retrieval quality</p>
+                            <p class="body-sm">"Did we retrieve the right context?" — Context precision &amp; recall: relevant chunks fetched, noise excluded.</p>
+                        </div>
+                        <div class="rm-col-card">
+                            <p class="title-md">Grounding quality</p>
+                            <p class="body-sm">"Did the answer stay grounded in that context?" — Faithfulness: the answer relies on retrieved content, not the model's own memory.</p>
+                        </div>
+                        <div class="rm-col-card">
+                            <p class="title-md">Answer quality</p>
+                            <p class="body-sm">"Did it actually answer the question?" — Answer relevancy, independent of whether the answer is grounded.</p>
+                        </div>
+                    </div>
+                    <div class="rm-callout rm-callout-sm">
+                        <p class="body-sm"><strong>Grounded &ne; true.</strong> Faithfulness tells you the model didn't invent something beyond its retrieved context — not that the retrieved context was itself correct. If your knowledge base contains a wrong fact, a perfectly faithful answer will confidently repeat it. Treat faithfulness as your check for fabrication, and factual correctness against golden cases (2.3) as a separate, additional check — especially for any knowledge base you don't fully control.</p>
+                    </div>
+                    <p class="body">Treat chunking strategy and retrieval tuning as a testing concern, not purely an engineering one — a failing faithfulness score is often a retrieval bug wearing a generation-bug costume.</p>
+
+                    <h4 class="title-md">3.3 Tools to learn</h4>
+                    <ul class="body">
+                        <li><strong>Ragas</strong> — purpose-built RAG metrics (faithfulness, context precision/recall, answer relevancy) — the standard starting point.</li>
+                        <li><strong>TruLens</strong> — tracing plus configurable "feedback functions" for scoring RAG and general LLM app behavior.</li>
+                        <li><strong>Arize Phoenix</strong> — open-source observability and evaluation, with strong tracing visualizations.</li>
+                        <li><strong>Langfuse</strong> — open-source tracing and analytics, useful for connecting production traces back into your eval datasets.</li>
+                    </ul>
+
+                    <div class="rm-practice">
+                        <p class="rm-practice-label">✎ HANDS-ON PRACTICE — Build and break a small RAG pipeline</p>
+                        <ul class="body-sm">
+                            <li>Take a small set of documents (your team's FAQ or public docs) and build a toy RAG pipeline with LangChain or LlamaIndex plus a vector database.</li>
+                            <li>Write a Ragas evaluation suite measuring faithfulness and context precision on 10–15 questions.</li>
+                            <li>Deliberately worsen the chunking (much larger or smaller chunks) and re-run the eval — confirm the scores drop and explain why.</li>
+                        </ul>
+                    </div>
+
+                    <p class="rm-outcome"><strong>After this stage, you can:</strong> diagnose whether a RAG failure originated in retrieval, grounding, or answer generation.</p>
+                </div>
+            </details>
+
+            <!-- Stage 4 -->
+            <details class="rm-stage" id="stage-4">
+                <summary class="rm-stage-summary">
+                    <span class="rm-stage-badge">STAGE 4</span>
+                    <span class="rm-stage-title">CI/CD, Observability &amp; Production-Grade Testing</span>
+                    <span class="rm-stage-time">~1.5 weeks</span>
+                </summary>
+                <div class="rm-stage-body">
+                    <p class="rm-goal"><strong>Goal:</strong> Move LLM evaluation out of a one-off notebook and into a repeatable, automated, production-grade quality gate.</p>
+
+                    <h4 class="title-md">4.1 Wiring LLM evals into CI/CD</h4>
+                    <ul class="body">
+                        <li>Run your golden-dataset regression suite automatically on every prompt or model change, the same way you'd run unit tests.</li>
+                        <li>Set score thresholds as build gates — similar in spirit to a code-coverage gate, but for quality/safety scores.</li>
+                        <li>Use shadow or canary testing to run a new prompt or model version against a sample of real traffic before full rollout.</li>
+                    </ul>
+
+                    <h4 class="title-md">4.2 Observability &amp; tracing</h4>
+                    <p class="body">Multi-step LLM calls (prompt &rarr; retrieval &rarr; tool call &rarr; final answer) are hard to debug from logs alone — you need tracing that shows the full chain for each request.</p>
+                    <ul class="body">
+                        <li><strong>LangSmith</strong> — tracing, dataset management, and evaluation, tightly integrated with the LangChain ecosystem.</li>
+                        <li><strong>Arize Phoenix / Langfuse</strong> — open-source alternatives for tracing and evaluation, useful when avoiding vendor lock-in.</li>
+                        <li><strong>Helicone</strong> — lightweight logging/observability proxy for LLM API calls, useful for quick cost and latency visibility.</li>
+                    </ul>
+                    <p class="body-sm rm-muted">A strong habit: every production bug you trace should become a new regression case in your golden dataset — this closes the loop between what breaks in the wild and what your automated suite catches next time.</p>
+
+                    <h4 class="title-md">4.3 Performance, load &amp; cost testing</h4>
+                    <ul class="body">
+                        <li>Track latency at P50/P95, not just averages — LLM latency is far less uniform than typical API latency.</li>
+                        <li>Load-test streaming endpoints with tools like k6 or Locust, adapted to handle streamed token responses rather than single JSON payloads.</li>
+                        <li>Track token usage and cost per request/session as a first-class metric — a prompt change that improves quality but doubles token cost is a real regression.</li>
+                    </ul>
+
+                    <h4 class="title-md">4.4 Production monitoring</h4>
+                    <ul class="body">
+                        <li>Watch for silent drift — a vendor's model update changing behavior with no code change on your side.</li>
+                        <li>Build feedback loops from real user signals (thumbs up/down, support escalations) back into your eval datasets.</li>
+                        <li>Alert on quality or safety score regressions the same way you'd alert on error-rate spikes.</li>
+                    </ul>
+
+                    <div class="rm-practice">
+                        <p class="rm-practice-label">✎ HANDS-ON PRACTICE — Automate the gate and trace a call</p>
+                        <ul class="body-sm">
+                            <li>Add a CI workflow (e.g. GitHub Actions) that runs your Stage 2 golden-dataset suite on every pull request and fails the build if the average score drops below a threshold you define.</li>
+                            <li>Instrument one multi-step LLM call with a tracing tool (LangSmith or Phoenix) and inspect the full trace end to end.</li>
+                            <li>Write down two production signals you'd want to feed back into your golden dataset, and why.</li>
+                        </ul>
+                    </div>
+
+                    <p class="rm-outcome"><strong>After this stage, you can:</strong> put AI evaluations into CI/CD and monitor behavior in production.</p>
+                </div>
+            </details>
+
+            <!-- Stage 5 -->
+            <details class="rm-stage" id="stage-5">
+                <summary class="rm-stage-summary">
+                    <span class="rm-stage-badge">STAGE 5</span>
+                    <span class="rm-stage-title">AI Safety, Security &amp; Red-Teaming</span>
+                    <span class="rm-stage-time">~1.5 weeks</span>
+                </summary>
+                <div class="rm-stage-body">
+                    <p class="rm-goal"><strong>Goal:</strong> Test for the failure modes that never show up in normal functional testing: safety, security, and deliberate misuse.</p>
+
+                    <h4 class="title-md">5.1 The OWASP LLM Top 10 as a living test checklist</h4>
+                    <p class="body">Use the OWASP GenAI Security Project's current LLM Top 10 as a standing checklist rather than a one-time read — it's actively revised, so always work from whichever edition is current, not a dated PDF fixed in your notes. Core categories to map test cases against:</p>
+                    <ul class="body">
+                        <li>Prompt injection (direct and indirect, via retrieved documents or tool output).</li>
+                        <li>Insecure output handling (unsafely trusting or executing model output).</li>
+                        <li>Training data poisoning and supply-chain risk for third-party models/plugins.</li>
+                        <li>Model denial-of-service and excessive resource consumption.</li>
+                        <li>Sensitive information disclosure (leaking PII, secrets, or system prompts).</li>
+                        <li>Insecure plugin/tool design and excessive agency (an agent doing more than it should).</li>
+                        <li>Overreliance — humans trusting AI output without adequate verification.</li>
+                    </ul>
+
+                    <h4 class="title-md">5.2 Prompt injection &amp; jailbreak testing</h4>
+                    <ul class="body">
+                        <li><strong>Direct injection</strong> — an attacker puts malicious instructions straight into their prompt to override system rules.</li>
+                        <li><strong>Indirect injection</strong> — malicious instructions hidden inside a document, webpage, or tool result the model later reads — especially dangerous in RAG and agent systems.</li>
+                        <li>Build (or reuse) automated jailbreak test suites rather than relying on manually trying a handful of tricks.</li>
+                    </ul>
+
+                    <h4 class="title-md">5.3 Bias, fairness, toxicity &amp; PII testing</h4>
+                    <ul class="body">
+                        <li>Maintain structured bias test sets that vary a sensitive attribute while holding everything else constant, and compare outputs.</li>
+                        <li>Use toxicity classifiers as an automated first pass, backed by human review for anything flagged.</li>
+                        <li>Explicitly test for PII leakage — both in normal use and under adversarial prompting designed to extract it.</li>
+                    </ul>
+
+                    <h4 class="title-md">5.4 Red-teaming tools</h4>
+                    <ul class="body">
+                        <li><strong>Promptfoo (red-team module)</strong> — generates adversarial test cases automatically, maps results to known vulnerability categories.</li>
+                        <li><strong>DeepTeam</strong> — an LLM red-teaming framework explicitly organized around the OWASP LLM Top 10.</li>
+                        <li><strong>Garak</strong> — an automated LLM vulnerability scanner for probing a wide range of known attack types.</li>
+                    </ul>
+                    <p class="body-sm rm-muted">Manual, structured red-teaming exercises still matter — document methodology, findings, and severity the way a security team would.</p>
+
+                    <h4 class="title-md">5.5 Governance basics</h4>
+                    <ul class="body">
+                        <li>Keep audit trails for high-risk agent actions.</li>
+                        <li>Require human-in-the-loop approval before an agent can take irreversible or high-impact actions.</li>
+                        <li>Adopt a lightweight responsible-AI checklist for any new LLM feature before it ships.</li>
+                    </ul>
+                    <p class="body-sm rm-muted">The OWASP GenAI Security Project also maintains guidance specific to agentic AI, covering excessive agency, unsafe tool chaining, and identity/authorization across multi-agent systems. Once you reach Stage 6, layer that guidance on top of this checklist rather than treating agent security as a separate topic.</p>
+
+                    <div class="rm-practice">
+                        <p class="rm-practice-label">✎ HANDS-ON PRACTICE — Run and document a red-team pass</p>
+                        <ul class="body-sm">
+                            <li>Run an automated red-team scan (Promptfoo red-team or DeepTeam) against a demo chatbot or agent.</li>
+                            <li>Document at least 5 findings: what was tried, what happened, severity, and a proposed mitigation for each.</li>
+                            <li>Write it up like a real security test report you could hand to a product owner.</li>
+                        </ul>
+                    </div>
+
+                    <p class="rm-outcome"><strong>After this stage, you can:</strong> systematically test AI applications for security and safety failures.</p>
+                </div>
+            </details>
+
+            <!-- Stage 6 -->
+            <details class="rm-stage" id="stage-6">
+                <summary class="rm-stage-summary">
+                    <span class="rm-stage-badge">STAGE 6</span>
+                    <span class="rm-stage-title">Testing AI Agents &amp; Multi-Agent Systems</span>
+                    <span class="rm-stage-time">~1.5 weeks</span>
+                </summary>
+                <div class="rm-stage-body">
+                    <p class="rm-goal"><strong>Goal:</strong> Apply everything so far to the hardest LLM testing problem: autonomous agents that plan, call tools, and take multi-step actions.</p>
+
+                    <h4 class="title-md">6.1 What's different about agents</h4>
+                    <ul class="body">
+                        <li>Multi-step reasoning and planning, rather than a single prompt/response exchange.</li>
+                        <li>Tool/function calling — the agent decides which tool to use and with what arguments.</li>
+                        <li>Memory and state carried across turns or steps.</li>
+                        <li>Non-linear execution paths — the same task can legitimately be solved via different sequences of steps.</li>
+                    </ul>
+
+                    <h4 class="title-md">6.2 Agent evaluation dimensions</h4>
+                    <ul class="body">
+                        <li><strong>Task completion rate</strong> — did the agent actually accomplish the goal, end to end?</li>
+                        <li><strong>Tool-call accuracy</strong> — did it choose the right tool, and pass correct arguments?</li>
+                        <li><strong>Trajectory/path evaluation</strong> — was the sequence of steps reasonable and efficient, not just the final answer?</li>
+                        <li><strong>Efficiency</strong> — how many steps, tool calls, and tokens did it take?</li>
+                        <li><strong>Action safety</strong> — did it avoid destructive or irreversible actions it wasn't authorized to take?</li>
+                    </ul>
+                    <p class="body-sm rm-muted">These dimensions score the path and the outcome — but an agent can produce a correct final answer while having done something you never wanted along the way. That's the subject of the next section.</p>
+
+                    <h4 class="title-md">6.3 State &amp; side-effect validation</h4>
+                    <p class="body">Testing only the final response isn't enough for an agent that can act on the world. A correct closing message can still sit on top of a real-world action that should never have happened — e.g. "cancel my subscription."</p>
+                    <div class="rm-flow rm-flow-tight rm-flow-compact">
+                        <div class="rm-flow-node rm-flow-node-ghost">User Intent</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Plan</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Tool Selection</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Arguments</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Authorization</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-ghost">Side Effect (e.g. subscription actually cancelled)</div>
+                        <div class="rm-flow-arrow">&darr;</div>
+                        <div class="rm-flow-node rm-flow-node-end">Final Response: "Done"</div>
+                    </div>
+                    <p class="body-sm rm-muted">A correct-looking "Done" tells you nothing about whether every step above it was safe and authorized. This is where AI testing turns into systems testing rather than response grading. For any agent that can take real actions, test each link explicitly:</p>
+                    <ul class="body">
+                        <li><strong>Intent</strong> — was the user's request interpreted correctly, including what they did not ask for?</li>
+                        <li><strong>Plan</strong> — is the sequence of steps reasonable, minimal, and reversible where possible?</li>
+                        <li><strong>Tool selection &amp; arguments</strong> — right tool, right parameters, no dangerous defaults.</li>
+                        <li><strong>Authorization</strong> — did the agent check it was actually allowed to take this action, for this user, before acting?</li>
+                        <li><strong>Side effect</strong> — did real-world state change exactly as intended, and only as intended (verify against the system of record, not the agent's own claim)?</li>
+                        <li><strong>Final response</strong> — does what the agent reports match what it actually did?</li>
+                    </ul>
+
+                    <h4 class="title-md">6.4 Tools to learn</h4>
+                    <ul class="body">
+                        <li><strong>LangSmith</strong> — tracing and evaluation for agent trajectories, tightly coupled with LangChain/LangGraph agents.</li>
+                        <li><strong>MLflow (GenAI/agent evaluation)</strong> — experiment tracking extended to prompts, evals, and agent traces.</li>
+                        <li><strong>Arize Phoenix</strong> — agent-aware tracing and evaluation, framework-agnostic.</li>
+                        <li>Dedicated agent-eval platforms (e.g. Maxim AI, Galileo) — a growing category worth knowing exists; evaluate against your team's specific needs.</li>
+                    </ul>
+
+                    <h4 class="title-md">6.5 MCP is another test boundary, not another framework to learn</h4>
+                    <p class="body">The Model Context Protocol (MCP) is a common standard for connecting agents to external tools and data sources. Don't treat "learning MCP" as a separate skill — treat every MCP connection as a boundary your agent crosses, and test it like any integration boundary.</p>
+                    <div class="rm-flow rm-flow-tight rm-flow-compact">
+                        <div class="rm-flow-node rm-flow-node-ghost">Agent</div>
+                        <div class="rm-flow-arrow">&darr; (MCP)</div>
+                        <div class="rm-flow-node rm-flow-node-end">Tool Server</div>
+                    </div>
+                    <p class="body-sm rm-muted">Each item below is a concrete thing to write a test case for — the same way you'd test any API boundary:</p>
+                    <ul class="body">
+                        <li><strong>Schema</strong> — does the agent correctly interpret a tool's schema and pass valid, correctly-typed arguments?</li>
+                        <li><strong>Input/output validation</strong> — does it reject or safely handle malformed tool output instead of hallucinating a plausible-looking result?</li>
+                        <li><strong>Failure handling</strong> — does it handle a tool timing out or erroring gracefully rather than guessing?</li>
+                        <li><strong>Authentication &amp; authorization</strong> — are tool permissions scoped correctly, so the agent can't reach data or actions outside its intended boundary?</li>
+                    </ul>
+                    <p class="body-sm rm-muted">This is exactly where the OWASP agentic AI guidance from Stage 5.5 applies most directly — excessive agency and unsafe tool chaining are boundary-crossing failures.</p>
+
+                    <div class="rm-practice">
+                        <p class="rm-practice-label">✎ HANDS-ON PRACTICE — Evaluate a small multi-tool agent</p>
+                        <ul class="body-sm">
+                            <li>Build (or adapt a sample) a 2–3 tool agent — e.g. weather lookup + calculator + web search — using LangGraph or CrewAI.</li>
+                            <li>Write an eval suite covering 10 scenarios that scores task completion and tool-call correctness.</li>
+                            <li>Include at least 2 scenarios where the correct behavior is to refuse a request or fail gracefully when a tool errors out.</li>
+                            <li>Add one scenario with a real (sandboxed) side effect — e.g. writing a record to a test database — and assert on the resulting state directly, not just the agent's final message.</li>
+                        </ul>
+                    </div>
+
+                    <p class="rm-outcome"><strong>After this stage, you can:</strong> evaluate not only what an agent says, but what it does.</p>
+                </div>
+            </details>
+
+            <!-- Stage 7 -->
+            <details class="rm-stage" id="stage-7">
+                <summary class="rm-stage-summary">
+                    <span class="rm-stage-badge">STAGE 7</span>
+                    <span class="rm-stage-title">Using AI &amp; LLMs to Supercharge Your Own Automation</span>
+                    <span class="rm-stage-time">~1.5 weeks</span>
+                </summary>
+                <div class="rm-stage-body">
+                    <p class="rm-goal"><strong>Goal:</strong> Flip the perspective — use AI and LLMs as part of your own automation toolkit to write tests faster, maintain them with less effort, and automate work beyond testing.</p>
+
+                    <h4 class="title-md">7.1 AI-assisted test authoring</h4>
+                    <ul class="body">
+                        <li>AI coding assistants (GitHub Copilot, Cursor, Claude Code, and similar) for writing and maintaining Selenium/Playwright/API test code faster.</li>
+                        <li>Natural-language-to-test-script generation — turning a manual test case or user story directly into a first draft of automated test code.</li>
+                    </ul>
+
+                    <h4 class="title-md">7.2 Self-healing &amp; AI-powered execution</h4>
+                    <ul class="body">
+                        <li>Self-healing locators — tools that automatically adapt when a UI selector breaks, instead of failing the whole run.</li>
+                        <li>AI visual testing — perceptual, AI-driven visual regression (e.g. Applitools Eyes) that understands "meaningfully different" rather than doing brittle pixel-by-pixel diffing.</li>
+                        <li>Flaky-test triage — ML/LLM-assisted analysis of failure logs to auto-classify a failure as a real bug versus environmental flakiness.</li>
+                    </ul>
+
+                    <h4 class="title-md">7.3 AI-generated test data &amp; exploratory testing</h4>
+                    <ul class="body">
+                        <li>Synthetic test-data generation with LLMs, constrained to your schema and business rules rather than free-form output.</li>
+                        <li>LLM-driven exploratory testing agents that navigate an application and report anomalies a scripted suite wouldn't think to check.</li>
+                    </ul>
+
+                    <h4 class="title-md">7.4 Building your own automation agents</h4>
+                    <p class="body">This is where the two tracks in this roadmap meet: use agent frameworks — LangGraph, CrewAI, n8n with LLM nodes, or the Claude Agent SDK — to automate QA workflows end to end. A realistic example pipeline: read a bug ticket &rarr; attempt to reproduce it &rarr; draft a regression test &rarr; open a pull request for review. MCP servers can connect such an agent to your test framework, CI system, and ticketing tool in a standardized way.</p>
+
+                    <h4 class="title-md">7.5 Guardrails when AI writes or executes automation</h4>
+                    <ul class="body">
+                        <li>Always review AI-generated test code before merging — treat it exactly like a PR from a junior teammate.</li>
+                        <li>Sandbox any agent that can execute actions; never give it direct production access.</li>
+                        <li>Treat AI-generated tests as a first draft that needs validation, not a finished, trustworthy artifact.</li>
+                    </ul>
+
+                    <div class="rm-practice">
+                        <p class="rm-practice-label">✎ HANDS-ON PRACTICE — Let AI draft, you review</p>
+                        <ul class="body-sm">
+                            <li>Use an AI coding assistant to generate a Playwright (or your framework of choice) test suite from 5 plain-English test cases.</li>
+                            <li>Review the generated code and deliberately find and fix at least 2 issues (wrong assertion, missing wait, wrong selector strategy, etc.).</li>
+                            <li>Prototype one small automation agent (LangGraph, CrewAI, or n8n) that takes a failing test's error log and drafts a bug report automatically.</li>
+                        </ul>
+                    </div>
+
+                    <p class="rm-outcome"><strong>After this stage, you can:</strong> use AI coding assistants and agent frameworks to draft, maintain, and extend your own test automation faster, with the review discipline to catch what they get wrong.</p>
+                </div>
+            </details>
+
+            <!-- Stage 8 -->
+            <details class="rm-stage" id="stage-8">
+                <summary class="rm-stage-summary">
+                    <span class="rm-stage-badge">STAGE 8</span>
+                    <span class="rm-stage-title">Capstone, Portfolio &amp; Continuing Education</span>
+                    <span class="rm-stage-time">Ongoing</span>
+                </summary>
+                <div class="rm-stage-body">
+                    <p class="rm-goal"><strong>Goal:</strong> Consolidate everything into a portfolio-ready project, and set up a system for staying current in a field that changes fast.</p>
+
+                    <h4 class="title-md" id="capstone">8.1 Capstone project ideas — pick one</h4>
+                    <ul class="body">
+                        <li>An end-to-end eval pipeline for a RAG chatbot (your Stage 2 LibreChat project, or similar): golden dataset + Ragas metrics + a CI quality gate + a tracing dashboard.</li>
+                        <li>A red-team report for a public demo LLM app, structured around the OWASP LLM Top 10.</li>
+                        <li>An autonomous QA agent that turns bug tickets into draft regression tests via a pull request.</li>
+                        <li>A self-healing Playwright suite enhanced with an AI-driven visual-diff step.</li>
+                    </ul>
+
+                    <h4 class="title-md">8.2 Building your portfolio</h4>
+                    <ul class="body">
+                        <li>Publish on GitHub with a clear README, sample reports/dashboards, and a short write-up of what you measured and why.</li>
+                        <li>Write one short post per stage explaining what you learned and built — it reinforces the learning and doubles as visible proof of the work.</li>
+                    </ul>
+
+                    <h4 class="title-md">8.3 Staying current</h4>
+                    <ul class="body">
+                        <li>Follow the OWASP GenAI Security Project and the engineering blogs of major model providers and agent-framework maintainers.</li>
+                        <li>Join MLOps/LLMOps-focused communities and any local AI-testing meetups.</li>
+                        <li>Revisit this roadmap's tool list and the OWASP Top 10 every 6 months — this landscape moves quickly and tool names will change even where the underlying principles don't.</li>
+                    </ul>
+
+                    <h4 class="title-md">8.4 Optional courses &amp; certifications</h4>
+                    <ul class="body">
+                        <li>Prompt-engineering courses (e.g. on Coursera or via DeepLearning.AI) to deepen Stage 1 foundations.</li>
+                        <li>Dedicated AI/LLM-testing bootcamps and courses are emerging — vet any course against the topics in this roadmap rather than assuming it's comprehensive.</li>
+                        <li>Treat certifications as supplementary. In a field moving this fast, a strong GitHub portfolio of real projects carries more weight than a badge.</li>
+                    </ul>
+
+                    <p class="rm-outcome"><strong>After this stage, you have:</strong> a public, portfolio-ready project that demonstrates the full evaluation-engineering discipline end to end.</p>
+                </div>
+            </details>
+        </section>
+
+        <!-- Tools cheat sheet -->
+        <section id="tools" class="rm-section">
+            <h2 class="title-lg">Appendix B — Tool cheat sheet</h2>
+            <p class="body-sm rm-muted">A reference list, not a syllabus — Section 2.7 already tells you which one tool to actually learn per problem category. Use this to look up what a name you've heard belongs to, or to find an alternative when your team already uses a different one.</p>
+            <div class="rm-table-scroll">
+                <table class="rm-table">
+                    <thead><tr><th>Tool</th><th>Category — what it's for</th></tr></thead>
+                    <tbody>
+                        <tr><td>Promptfoo</td><td>Prompt testing &amp; red-teaming — config-driven eval and adversarial testing, CI-friendly.</td></tr>
+                        <tr><td>DeepEval</td><td>LLM evaluation — pytest-style metrics library for scoring LLM outputs.</td></tr>
+                        <tr><td>Ragas</td><td>RAG evaluation — purpose-built metrics: faithfulness, context precision/recall, answer relevancy.</td></tr>
+                        <tr><td>TruLens</td><td>Evaluation &amp; tracing — configurable feedback functions for LLM app evaluation.</td></tr>
+                        <tr><td>Arize Phoenix</td><td>Observability — open-source tracing and evaluation for LLM and agent apps.</td></tr>
+                        <tr><td>LangSmith</td><td>Observability &amp; agent eval — tracing, datasets, and evaluation for LangChain/LangGraph.</td></tr>
+                        <tr><td>Langfuse</td><td>Observability — open-source LLM tracing and analytics.</td></tr>
+                        <tr><td>MLflow (GenAI)</td><td>Experiment tracking — extended to prompts, evals, and agent traces.</td></tr>
+                        <tr><td>DeepTeam</td><td>Red-teaming — LLM red-team framework organized around the OWASP LLM Top 10.</td></tr>
+                        <tr><td>Garak</td><td>Security scanning — automated LLM vulnerability scanner.</td></tr>
+                        <tr><td>LangGraph</td><td>Agent framework — building stateful, multi-step agents.</td></tr>
+                        <tr><td>CrewAI</td><td>Agent framework — multi-agent orchestration.</td></tr>
+                        <tr><td>Applitools Eyes</td><td>Visual AI testing — perceptual visual regression testing.</td></tr>
+                        <tr><td>Claude Code / Copilot / Cursor</td><td>AI coding assistants — AI-assisted test authoring and maintenance.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="body-sm rm-muted">Tool names in this field change quickly — what won't change is the underlying discipline: build golden datasets, measure with clear metrics, gate changes in CI, trace production behavior, and deliberately test for safety and security failure modes. Master that discipline first, and picking up whatever tool is current becomes easy.</p>
+        </section>
+
+        <!-- Glossary -->
+        <section id="glossary" class="rm-section">
+            <h2 class="title-lg">Appendix A — Glossary</h2>
+            <details class="rm-stage">
+                <summary class="rm-stage-summary"><span class="rm-stage-title">Expand full glossary</span></summary>
+                <div class="rm-stage-body">
+                    <div class="rm-table-scroll">
+                        <table class="rm-table">
+                            <thead><tr><th>Term</th><th>Plain-language meaning</th></tr></thead>
+                            <tbody>
+                                <tr><td>LLM</td><td>A large language model — trained on huge amounts of text, generates text by predicting likely next tokens.</td></tr>
+                                <tr><td>Token</td><td>A chunk of text (often a word or part of a word) — the basic unit an LLM processes and is billed by.</td></tr>
+                                <tr><td>Context window</td><td>The maximum amount of text (in tokens) a model can consider at once, including prompt, history, and retrieved data.</td></tr>
+                                <tr><td>Temperature</td><td>A setting controlling output randomness — higher values produce more varied, less predictable responses.</td></tr>
+                                <tr><td>Embedding</td><td>A numeric vector representation of text used to measure semantic similarity between pieces of text.</td></tr>
+                                <tr><td>Vector database</td><td>A database optimized for storing embeddings and finding the most semantically similar ones quickly.</td></tr>
+                                <tr><td>RAG</td><td>Retrieval-Augmented Generation — fetching relevant data and feeding it to the model as context before it answers.</td></tr>
+                                <tr><td>Fine-tuning</td><td>Further training a base model on domain-specific data to change its behavior or style.</td></tr>
+                                <tr><td>Prompt engineering</td><td>Deliberately designing prompts (instructions, examples, structure) to reliably get the desired output.</td></tr>
+                                <tr><td>Hallucination</td><td>Confident output that is factually wrong or unsupported by the given context.</td></tr>
+                                <tr><td>Prompt injection</td><td>An attack where malicious instructions are inserted (directly or via retrieved content) to override intended behavior.</td></tr>
+                                <tr><td>Jailbreak</td><td>A prompt crafted to bypass a model's safety or policy restrictions.</td></tr>
+                                <tr><td>Agent</td><td>An LLM-driven system that can plan, call tools/functions, and take multi-step actions toward a goal.</td></tr>
+                                <tr><td>Tool/function calling</td><td>A mechanism letting a model invoke external functions or APIs as part of generating its response.</td></tr>
+                                <tr><td>MCP (Model Context Protocol)</td><td>An emerging standard protocol for connecting agents to external tools and data sources consistently.</td></tr>
+                                <tr><td>LLM-as-judge</td><td>Using a separate LLM call to score or grade another model's output against a rubric.</td></tr>
+                                <tr><td>Test oracle</td><td>The mechanism that decides whether an output is acceptable — anything from an exact-match assertion to an LLM-as-judge to a human rater. Designing the oracle is often the hard part.</td></tr>
+                                <tr><td>Golden dataset</td><td>A curated, version-controlled set of test inputs and expected behaviors used for repeatable evaluation — usually a blend of golden, regression, adversarial, boundary, and synthetic cases.</td></tr>
+                                <tr><td>Faithfulness / groundedness</td><td>Whether a generated answer is actually supported by the retrieved context, rather than invented. Grounded is not the same as factually true.</td></tr>
+                                <tr><td>Guardrails</td><td>Rules, filters, or checks (automated or human) that constrain what an LLM system is allowed to output or do.</td></tr>
+                                <tr><td>Red-teaming</td><td>Deliberately probing a system with adversarial inputs to find security, safety, or policy failures.</td></tr>
+                                <tr><td>Drift</td><td>A change in model or system behavior over time, often caused by a silent vendor-side model update.</td></tr>
+                                <tr><td>Trajectory (agent)</td><td>The sequence of steps and tool calls an agent actually took to reach its answer, as distinct from the final answer itself.</td></tr>
+                                <tr><td>Side effect</td><td>A real-world state change caused by an action — verified against the system of record, not the agent's own report of what it did.</td></tr>
+                                <tr><td>Judge calibration</td><td>How well an LLM-as-judge's scores track actual human judgment across the full scoring range, checked by periodically comparing judge and human ratings on the same cases.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </details>
+        </section>
+    </div>
+</BaseLayout>
+
+<style>
+    .rm-flow-line {
+        margin-top: 0.75rem;
+        opacity: 0.7;
+    }
+
+    .rm-wrap {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .rm-muted {
+        opacity: 0.75;
+    }
+
+    .rm-quicknav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .rm-card {
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        background: var(--surface);
+    }
+
+    .rm-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .rm-callout {
+        border-left: 4px solid var(--accent);
+        padding: 1rem 1.25rem;
+        background: var(--surface);
+        border-radius: 0 0.5rem 0.5rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .rm-callout-sm {
+        padding: 0.85rem 1rem;
+    }
+
+    .rm-callout-label {
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        opacity: 0.7;
+        font-size: 0.7rem;
+    }
+
+    .rm-spine {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+        font-weight: 600;
+        opacity: 0.9;
+    }
+
+    /* Flow diagram */
+    .rm-flow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 1rem 0;
+    }
+
+    .rm-flow-tight {
+        margin: 0.75rem 0;
+    }
+
+    .rm-flow-node {
+        display: block;
+        width: 100%;
+        max-width: 380px;
+        text-align: center;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--foreground);
+        border-radius: 0.5rem;
+        padding: 0.65rem 1rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    a.rm-flow-node:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        text-decoration: none;
+    }
+
+    .rm-flow-node-ghost {
+        font-weight: 600;
+        font-size: 0.85rem;
+        opacity: 0.9;
+        cursor: default;
+    }
+
+    .rm-flow-compact .rm-flow-node-ghost {
+        max-width: 420px;
+    }
+
+    .rm-flow-node-end {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .rm-flow-num {
+        font-family: "JetBrains Mono", monospace;
+        color: var(--accent);
+        margin-right: 0.4rem;
+    }
+
+    .rm-flow-arrow {
+        opacity: 0.5;
+        line-height: 1;
+        padding: 0.15rem 0;
+        font-size: 1rem;
+    }
+
+    .rm-level {
+        display: flex;
+        align-items: baseline;
+        gap: 0.4rem;
+        cursor: default;
+    }
+
+    .rm-level-desc {
+        font-weight: 500;
+        opacity: 0.6;
+        font-size: 0.8rem;
+        margin-left: auto;
+    }
+
+    /* Pace timeline */
+    .rm-pace {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .rm-pace-chip {
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        background: var(--surface);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.82rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        flex: 1 1 150px;
+    }
+
+    .rm-pace-chip-end {
+        border-color: var(--accent);
+    }
+
+    .rm-pace-week {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--accent);
+        font-weight: 700;
+    }
+
+    .rm-pace-arrow {
+        opacity: 0.45;
+        flex-shrink: 0;
+    }
+
+    /* Evaluation pyramid */
+    .rm-pyramid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        margin: 1rem 0;
+    }
+
+    .rm-pyramid-row {
+        width: var(--w);
+        max-width: 100%;
+        text-align: center;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        border-radius: 0.3rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .rm-pyramid-base {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    /* Stage accordions */
+    .rm-stage {
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        background: var(--surface);
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+
+    .rm-stage-summary {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        padding: 1rem 1.25rem;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .rm-stage-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .rm-stage-summary::before {
+        content: "+";
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        color: var(--accent);
+        width: 1rem;
+        flex-shrink: 0;
+    }
+
+    .rm-stage[open] > .rm-stage-summary::before {
+        content: "\2212";
+    }
+
+    .rm-stage-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--accent);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.15rem 0.55rem;
+        flex-shrink: 0;
+    }
+
+    .rm-stage-title {
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .rm-stage-time {
+        margin-left: auto;
+        font-size: 0.78rem;
+        opacity: 0.6;
+        flex-shrink: 0;
+    }
+
+    .rm-stage-body {
+        padding: 0 1.25rem 1.5rem;
+        border-top: 1px solid var(--border);
+        padding-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .rm-goal {
+        opacity: 0.9;
+    }
+
+    .rm-outcome {
+        border-left: 3px solid var(--accent);
+        padding: 0.6rem 0.9rem;
+        background: var(--background);
+        border-radius: 0 0.4rem 0.4rem 0;
+        margin-top: 0.5rem;
+    }
+
+    .rm-practice,
+    .rm-portfolio {
+        border: 1px dashed var(--border);
+        border-radius: 0.5rem;
+        padding: 0.9rem 1.1rem;
+        margin-top: 0.5rem;
+    }
+
+    .rm-practice-label {
+        font-weight: 700;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        opacity: 0.75;
+        margin-bottom: 0.5rem;
+    }
+
+    .rm-cols-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
+        margin: 0.75rem 0;
+    }
+
+    .rm-col-card {
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.85rem 1rem;
+        background: var(--background);
+    }
+
+    .rm-table-scroll {
+        overflow-x: auto;
+    }
+
+    .rm-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.75rem 0;
+        font-size: 0.85rem;
+    }
+
+    .rm-table th,
+    .rm-table td {
+        border: 1px solid var(--border);
+        padding: 0.5rem 0.7rem;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .rm-table th {
+        opacity: 0.7;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+        .rm-stage-time {
+            margin-left: 0;
+            width: 100%;
+        }
+
+        .rm-level-desc {
+            margin-left: 0;
+            width: 100%;
+        }
+    }
+</style>

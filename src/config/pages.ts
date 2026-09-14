@@ -46,9 +46,9 @@ export const PAGES: PagesConfig = {
         subtitle: "Thoughts, experiments, and resources on AI's role in software testing.",
         isActive: true,
     },
-    til: {
-        title: "TIL",
-        subtitle: "Today I Learned — a running log of small, daily lessons.",
+    roadmap: {
+        title: "AI Test Engineering Roadmap",
+        subtitle: "From SDET to AI Test Engineer — a practical, stage-by-stage guide for automation engineers moving into AI/LLM testing.",
         isActive: true,
     },
 };
