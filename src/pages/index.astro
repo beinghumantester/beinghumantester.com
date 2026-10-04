@@ -1,13 +1,16 @@
 ---
 import { getEntry, render } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { PAGES } from "../config";
+import { PAGES, NEWSLETTER_FORM_ID } from "../config";
 
 // Load bio content
 const bioEntry = await getEntry("bio", "bio");
 const { Content: BioContent } = bioEntry
 	? await render(bioEntry)
 	: { Content: null };
+
+// Same cookie name EmailOctopus uses internally to track its auto-open
+const NEWSLETTER_COOKIE_NAME = `eoForm_${NEWSLETTER_FORM_ID}`;
 ---
 
 <BaseLayout title={PAGES.home.title}>
@@ -30,21 +33,43 @@ const { Content: BioContent } = bioEntry
 	</div>
 </BaseLayout>
 
-<script is:inline>
+<script is:inline define:vars={{ NEWSLETTER_COOKIE_NAME }}>
 	(function () {
-		function scheduleAutoPopup() {
-			try {
-				if (sessionStorage.getItem("newsletterAutoShown") === "true") return;
-			} catch (e) {}
+		// The script is re-run on every view-transition visit, so bind the listener only once
+		if (window.newsletterAutoPopupBound) return;
+		window.newsletterAutoPopupBound = true;
 
-			setTimeout(function () {
+		var timer = null;
+
+		function isAutoShown() {
+			try {
+				return sessionStorage.getItem("newsletterAutoShown") === "true";
+			} catch (e) {
+				return false;
+			}
+		}
+
+		function markAutoShown() {
+			try {
+				sessionStorage.setItem("newsletterAutoShown", "true");
+				// EmailOctopus also auto-opens its form after 10s, but only if this cookie is absent.
+				// Setting it here (same format as EmailOctopus uses) stops that second popup.
+				// The Subscribe button ignores this cookie, so manual opening still works.
+				var expires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString();
+				document.cookie = NEWSLETTER_COOKIE_NAME + "=true; expires=" + expires + "; domain=" + window.location.hostname + "; path=/";
+			} catch (e) {}
+		}
+
+		function scheduleAutoPopup() {
+			if (window.location.pathname !== "/" || isAutoShown() || timer) return;
+
+			timer = setTimeout(function () {
+				timer = null;
+				if (isAutoShown()) return;
 				var trigger = document.querySelector("[data-eo-form-toggle-id]");
-				if (trigger) {
-					trigger.click();
-					try {
-						sessionStorage.setItem("newsletterAutoShown", "true");
-					} catch (e) {}
-				}
+				if (!trigger) return;
+				markAutoShown();
+				trigger.click();
 			}, 5000);
 		}
 
