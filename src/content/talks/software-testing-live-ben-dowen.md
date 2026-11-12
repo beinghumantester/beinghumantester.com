@@ -1,6 +1,6 @@
 ---
 title: "Software Testing Live - Conversation with Ben Dowen"
-date: "2026-11-12"
+date: "2026-12-10"
 event: "Software Testing Live, Ministry of Testing (Online)"
 external_url: "https://www.ministryoftesting.com/"
 description: "A live discussion on modern software testing practices and quality thinking, hosted by Ministry of Testing."
