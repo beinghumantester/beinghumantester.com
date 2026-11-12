@@ -1,5 +1,5 @@
 ---
-import { NAV_LINKS, PAGES, NEWSLETTER_FORM_ID, THEME_CONFIG } from "../../config";
+import { NAV_LINKS, PAGES, THEME_CONFIG } from "../../config";
 import Icon from "../ui/Icon.astro";
 
 const currentPath = Astro.url.pathname;
@@ -78,15 +78,14 @@ const visibleLinks = NAV_LINKS.filter((link) => {
             )
         }
         <li>
-            <button
-                type="button"
-                aria-haspopup="dialog"
-                class="nav-link inactive nav-link-btn"
-                data-eo-form-toggle-id={NEWSLETTER_FORM_ID}
+            <a
+                href="/subscribe/"
+                data-astro-reload
+                class={`nav-link ${isLinkActive("/subscribe") ? "active" : "inactive"}`}
             >
                 Subscribe
                 <span class="nav-link-line" />
-            </button>
+            </a>
         </li>
     </ul>
 
