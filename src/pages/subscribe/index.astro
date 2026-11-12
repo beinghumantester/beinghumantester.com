@@ -1,0 +1,56 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { NEWSLETTER_FORM_ID } from "../../config";
+
+const description = "Get new posts on software testing, test automation and AI in testing, straight to your inbox.";
+---
+
+<BaseLayout title="Subscribe" description={description}>
+    <div class="container-narrow">
+        <header class="page-header">
+            <h1 class="page-title">Subscribe</h1>
+            <p class="page-subtitle">{description}</p>
+        </header>
+        <div class="prose">
+            <p>No spam. Unsubscribe anytime.</p>
+            <button
+                type="button"
+                class="btn"
+                aria-haspopup="dialog"
+                data-eo-form-toggle-id={NEWSLETTER_FORM_ID}
+                data-subscribe-open
+            >
+                Subscribe to the newsletter
+            </button>
+        </div>
+    </div>
+</BaseLayout>
+
+<script is:inline define:vars={{ NEWSLETTER_FORM_ID }}>
+    (function () {
+        // Runs again on every view-transition visit, so bind the listener only once
+        if (window.subscribePageBound) return;
+        window.subscribePageBound = true;
+
+        function openOnSubscribePage() {
+            if (!/^\/subscribe\/?$/.test(window.location.pathname)) return;
+
+            // The EmailOctopus script loads async, so wait until its modal exists
+            // (up to ~10s), then open it with the page's own Subscribe button.
+            var tries = 0;
+            var poll = setInterval(function () {
+                tries++;
+                var modal = document.querySelector('.modal-container[data-form="' + NEWSLETTER_FORM_ID + '"]');
+                var button = document.querySelector("[data-subscribe-open]");
+                if (modal && button) {
+                    clearInterval(poll);
+                    if (!modal.classList.contains("active")) button.click();
+                } else if (tries >= 40) {
+                    clearInterval(poll);
+                }
+            }, 250);
+        }
+
+        document.addEventListener("astro:page-load", openOnSubscribePage);
+    })();
+</script>
